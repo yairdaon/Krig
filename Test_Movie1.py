@@ -22,6 +22,9 @@ xMin = -5.0
 xMax = 5.0
 yMin = -15.0
 yMax = 2.0
+r    = 1.5
+M    = 10.0
+
 
 
 a = cfg.Config()
@@ -35,13 +38,13 @@ s2 = np.array( [  1.5  ] )
 cfg.Config.addPair(a, s1, f(s1))
 cfg.Config.addPair(a, s2, f(s2))
 
-cfg.Config.setR(a, 0.5)
-cfg.Config.setM(a, 10.0)
+cfg.Config.setR(a, r)
+cfg.Config.setM(a, M)
 cfg.Config.setMatrices(a)
 
 
 
-x = np.arange(-5.0, 5.0, 0.05)
+x = np.arange(xMin, xMax, 0.05)
 n = len(x)
 y = np.zeros( x.shape )
 true = np.zeros( x.shape )
@@ -60,10 +63,12 @@ for frame in range (nf):
         
         curve1  = plt.plot(x, y , label = "kriged value")
         curve2 =  plt.plot(x, true, label = " real value ")
+        curve3 =  plt.plot( a.X, a.F, 'bo', label = " sampled points ")
         plt.setp( curve1, 'linewidth', 3.0, 'color', 'k', 'alpha', .5 )
         plt.setp( curve2, 'linewidth', 1.5, 'color', 'r', 'alpha', .5 )
         plt.axis([xMin, xMax, yMin, yMax])
-        plt.title("Kriged Log-Likelihood Changes in Time. ")
+        PlotTitle = 'Kriged Log-Likelihood Changes in Time. r = ' + str(r)
+        plt.title( PlotTitle )
         textString = 'using  ' + str(frame) + ' sampled points' 
         plt.text(1.0, 1.0, textString)
         plt.legend( loc = 2)
