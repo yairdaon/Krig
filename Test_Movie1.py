@@ -16,50 +16,48 @@ import matplotlib.pyplot as plt
 import string as st
 import kernel.config as cfg
 
-nf = 10
-delay = 5
-xMin = -5.0
-xMax = 5.0
-yMin = -15.0
-yMax = 2.0
-r    = 1.5
-M    = 10.0
+
+#     Parameters for the algorithm
+nf    = 60        # The number of evaluations of the true likelihood
+r     = 1.3       # The length scale parameter in the Gaussian process covariance function.
+M = 10.0
+f = truth.trueLL                    # the true log-likelihood function
 
 
+#    Start the algorithm using these points
+StartPoints = []
+StartPoints.append( np.array( [ -0.5 ] ) )
+StartPoints.append( np.array( [  1.5 ] ) )
 
+#     Initializations of the algorithm
 a = cfg.Config()
-
-# the log-likelihood of a gaussian
-f = truth.trueLL
-  
-# locations where log-likelihood of gaussian is known
-s1 = np.array( [ -0.5  ] )
-s2 = np.array( [  1.5  ] )
-cfg.Config.addPair(a, s1, f(s1))
-cfg.Config.addPair(a, s2, f(s2))
-
+for point in StartPoints:
+    cfg.Config.addPair(a, point, f(point))
 cfg.Config.setR(a, r)
 cfg.Config.setM(a, M)
 cfg.Config.setMatrices(a)
 
 
+# plot parameters
+delay = 5
+xMin = -20.0
+xMax =  20.0
+yMin = -15.0
+yMax = 8.0
 
-x = np.arange(xMin, xMax, 0.05)
+x = np.arange(xMin, xMax, 0.02)
 n = len(x)
 y = np.zeros( x.shape )
-true = np.zeros( x.shape )
-
-true = f(x)
+true = f(x) # the real log likelihood
 
 for frame in range (nf):
     smp.sampler(a)
     for j in range(0,n):
-        b = kg.kriging(x[j] ,a)
-        y[j] = b[0]
+        tmp = kg.kriging(x[j] ,a)
+        y[j] = tmp[0]
         
     for k in range(delay):
         plt.figure( frame*delay + k )
-        #print("* * * " + str(i) + " * * *")
         
         curve1  = plt.plot(x, y , label = "kriged value")
         curve2 =  plt.plot(x, true, label = " real value ")
@@ -69,13 +67,11 @@ for frame in range (nf):
         plt.axis([xMin, xMax, yMin, yMax])
         PlotTitle = 'Kriged Log-Likelihood Changes in Time. r = ' + str(r)
         plt.title( PlotTitle )
-        textString = 'using  ' + str(frame) + ' sampled points' 
+        textString = 'using  ' + str(frame + 1) + ' sampled points' 
         plt.text(1.0, 1.0, textString)
-        plt.legend( loc = 2)
+        plt.legend( loc = 3)
     
         FrameFileName = "MovieFrames/Frame" + str(frame*delay + k) + ".png"
         plt.savefig(FrameFileName)
         plt.close(frame*delay + k)
-        print "saved file " + FrameFileName
-    
-
+        # print "saved file " + FrameFileName

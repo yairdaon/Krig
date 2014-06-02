@@ -42,6 +42,6 @@ s = np.matrix( [0, 0] )
 b , c = kg.kriging(s, a)
 
 
-print "should return something close to 0 with not much variance"
+print "should return something close to 0 with not much standadrd deviation"
 print "value = " + str(b)
 print "Standard Deviation = " + str(c)

@@ -13,9 +13,9 @@ import kernel.config as cfg
 # allocating memory
 x = np.arange(0.0, 2.0, 0.01)
 n = len(x)
-f = np.zeros( (n,1))
-upper = np.zeros( (n,1) )
-lower = np.zeros( (n,1) )
+f = np.zeros( n )
+upper = np.zeros( n )
+lower = np.zeros( n )
 
 #X = []
 x1 =  np.array( [ 0.5 ] )
@@ -28,7 +28,7 @@ x4 =  np.array( [ 1.25 ] )
 #X.append(x4)
 
 #F = []
-f1 = np.array( [  2.0  ])
+f1 = np.array( [  1.5  ])
 f2 = np.array( [  1.5  ])
 f3 = np.array( [  1.5  ])
 f4 = np.array( [  1.5  ])

@@ -7,16 +7,17 @@ Created on Apr 29, 2014
 import numpy as np
 import math
 import kernel.aux as aux
-import kernel.config
-eps = 10**(-12)
+import kernel.config as cfg
 
 
 # this is where we decide actually which kriging subroutine we use.
 # calling them always has the same syntax, though. It is C that takes
 # different forms.
 def kriging(s, CFG):
-    return augCovKriging(s, CFG)
- 
+    f, sigSquare =  svdKriging(s, CFG)
+    #f, sigSquare = augCovKriging(s, CFG)
+    
+    return f, math.sqrt( abs(sigSquare) ) 
  
  
 # do kriging. Hewr we calculate the kriging weights
@@ -89,15 +90,8 @@ def invCovKriging(s, CFG): #  X, F, Cinv, r):
         f = f + F[i]*lam[i]
         
     sigmaSquare =  aux.cov(0,0,r) + m - math.fsum( lam*c ) 
-    if sigmaSquare < 0:
-        print "---------------------"
-        print "invCovKriging returned negative variance."
-        print "x = " + str(s)
-        print "Sum of lambdas = " + str(np.sum(lam))
-        print "sig2 = " + str(sigmaSquare) 
-        print "m = " + str(m)  
-        print "f = " + str(f)  
-    return f, math.sqrt( max(sigmaSquare, 0) )
+    
+    return f, sigmaSquare
 
 
 
@@ -129,8 +123,12 @@ def invCovKriging(s, CFG): #  X, F, Cinv, r):
 # r - a hyper parameter, responsible for the spread of the covariance
 #
 #returns - mean and standard deviation for point s
+
+
+
 def augCovKriging(s, CFG): # X, F, C, r):
     
+
     # unpack the variables
     X = CFG.X
     F = CFG.F
@@ -163,18 +161,8 @@ def augCovKriging(s, CFG): # X, F, C, r):
     #sigma = math.sqrt(sigmaSquare)-
     #answer = lam
     sigmaSquare = 2.0*m - np.sum( v*c ) + aux.cov(0,0,r)  
-    if sigmaSquare < 0:
-        if 0: #abs(sigmaSquare/f) > eps:
-            print "---------------------"
-            print "augCovKriging returned significantly negative variance."
-            print "x = " + str(s)
-            print "Sum of lambdas   = " + str( np.sum(lam) )
-            print "sig2 = " + str(sigmaSquare) 
-            print "m = " + str(m)  
-            print "f = " + str(f)  
-    answer = f, math.sqrt( max(sigmaSquare, 0) )
-    #answer =  [f, math.sqrt(max( sigmaSquare,0 )  )]
-    return answer    
+    
+    return f, sigmaSquare
     
     
     
@@ -213,15 +201,55 @@ def invAugKriging(s, CFG): # X, F, Cinv, r):
     #sigma = math.sqrt(sigmaSquare)-
     #answer = lam
     sigmaSquare = 2.0*m + aux.cov(0,0,r)  - np.sum( v*c ) 
-    if sigmaSquare < 0 and -sigmaSquare/f > eps:
-            print "---------------------"
-            print "invAugKriging returned significantly negative variance."
-            print "x = " + str(s)
-            print "Sum of lambdas  - 1  = " + str( np.sum(lam)  -1 )
-            print "sig2 = " + str(sigmaSquare) 
-            print "m = " + str(m)  
-            print "f = " + str(f)  
-    answer = f, math.sqrt( max(sigmaSquare, 0) )
+
     #answer =  [f, math.sqrt(max( sigmaSquare,0 )  )]
-    return answer    
+    return f, sigmaSquare    
+     
+   
+   
+def svdKriging(s, CFG):
+    
+    # unpack the variables
+    X = CFG.X
+    F = CFG.F
+    U = CFG.U
+    S = CFG.S
+    V = CFG.V
+    r = CFG.r
+    reg = CFG.reg
+    
+    # number of samples we have.
+    n = len(F)
+    
+    # print "n = " + str(n)
+    # now create the target c:
+    c = np.zeros( n+1 )
+    for i in range(0,n):
+        c[i] = aux.cov(s,X[i],r)
+    c[n] =  1.0
+    
+    b = np.dot(np.transpose(U), c)
+    
+    #s =  np.diag(S)
+    # solve for  lambda 
+    x = b*S/(S*S + reg )
+    # print np.shape(x)
+    lam = np.dot( np.transpose(V) ,  np.transpose(x) )
+    m = lam[n]
+    
+    lam = lam[0:n]   
+    
+    f = np.zeros( len(F[0]) )
+    # print " this is f" 
+    # print  f
+    # sigmaSquare = 0.0
+    # find the answer
+    for i in range(n):
+        f = f + lam[i] * F[i]
+        #print "sig2 = " + str(sigmaSquare)
+        #print "lam[i] * c[i] = " + str( lam[i]*c[i] )
+    #answer = lam
+    sigmaSquare = m + aux.cov(0,0,r) - np.sum(lam*c[0:n])  
+    
+    return f, sigmaSquare    
     
