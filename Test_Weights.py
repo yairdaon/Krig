@@ -27,7 +27,7 @@ lam, m, c = kg.weights(s, X, Cinv, r)
 
 ones = np.ones(c.shape )
 v = np.dot(aux.covMat(X,r), lam) - c - m*ones
-print " If all of theses are zero, then you're OK!"
-print v
-print sum(lam) - 1.0
+print("If all of theses are zero, then you're OK!")
+print(v)
+print(sum(lam) - 1.0)
 

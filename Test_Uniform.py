@@ -7,6 +7,7 @@ Created on May 9, 2014
 import kernel.sampler as smp
 import numpy as np
 import pylab as P
+import kernel.config as cfg
 
 
 # create locations where values of log 
@@ -42,12 +43,18 @@ minimum = 5.0
 # maximal sampled value. should converge to -M 
 maximum = -5.0
 
+a = cfg.Config()
+a.setR(r)
+a.setM(M)
+for i in range(4):
+    a.addPair(X[i], F[i])
+a.setMatrices()
 samples =[]
 # loop and demonstrate SLLN
 for i in range(0,n):
     
     # use our sampler to sample
-    temp = smp.sampler(X, F, M, r)
+    temp = smp.sampler(a)
     samples.append(temp)
     # change the min and max if appropriate
     if (temp > maximum):

@@ -14,12 +14,60 @@ import kernel.config as cfg
 # calling them always has the same syntax, though. It is C that takes
 # different forms.
 def kriging(s, CFG):
+    
     f, sigSquare =  svdKriging(s, CFG)
     #f, sigSquare = augCovKriging(s, CFG)
     
     return f, math.sqrt( abs(sigSquare) ) 
  
- 
+
+def svdKriging(s, CFG):
+    
+    # unpack the variables
+    X = CFG.X
+    F = CFG.F
+    U = CFG.U
+    S = CFG.S
+    V = CFG.V
+    r = CFG.r
+    reg = CFG.reg
+    
+    # number of samples we have.
+    n = len(F)
+    
+    # print "n = " + str(n)
+    # now create the target c:
+    c = np.zeros( n+1 )
+    for i in range(0,n):
+        c[i] = aux.cov(s,X[i],r)
+    c[n] =  1.0
+    
+    b = np.dot(np.transpose(U), c)
+    
+    #s =  np.diag(S)
+    # solve for  lambda 
+    x = b*S/(S*S + reg )
+    # print np.shape(x)
+    lam = np.dot( np.transpose(V) ,  np.transpose(x) )
+    m = lam[n]
+    
+    lam = lam[0:n]
+    lam = lam/np.sum(lam)
+    
+    f = np.zeros( len(F[0]) )
+    # print " this is f" 
+    # print  f
+    # sigmaSquare = 0.0
+    # find the answer
+    for i in range(n):
+        f = f + lam[i] * F[i]
+        #print "sig2 = " + str(sigmaSquare)
+        #print "lam[i] * c[i] = " + str( lam[i]*c[i] )
+    #answer = lam
+    sigmaSquare = m + aux.cov(0,0,r) - np.sum(lam*c[0:n])  
+    
+    return f, sigmaSquare    
+    
 # do kriging. Hewr we calculate the kriging weights
 # we are looking to solve the following:
 #    
@@ -207,49 +255,3 @@ def invAugKriging(s, CFG): # X, F, Cinv, r):
      
    
    
-def svdKriging(s, CFG):
-    
-    # unpack the variables
-    X = CFG.X
-    F = CFG.F
-    U = CFG.U
-    S = CFG.S
-    V = CFG.V
-    r = CFG.r
-    reg = CFG.reg
-    
-    # number of samples we have.
-    n = len(F)
-    
-    # print "n = " + str(n)
-    # now create the target c:
-    c = np.zeros( n+1 )
-    for i in range(0,n):
-        c[i] = aux.cov(s,X[i],r)
-    c[n] =  1.0
-    
-    b = np.dot(np.transpose(U), c)
-    
-    #s =  np.diag(S)
-    # solve for  lambda 
-    x = b*S/(S*S + reg )
-    # print np.shape(x)
-    lam = np.dot( np.transpose(V) ,  np.transpose(x) )
-    m = lam[n]
-    
-    lam = lam[0:n]   
-    
-    f = np.zeros( len(F[0]) )
-    # print " this is f" 
-    # print  f
-    # sigmaSquare = 0.0
-    # find the answer
-    for i in range(n):
-        f = f + lam[i] * F[i]
-        #print "sig2 = " + str(sigmaSquare)
-        #print "lam[i] * c[i] = " + str( lam[i]*c[i] )
-    #answer = lam
-    sigmaSquare = m + aux.cov(0,0,r) - np.sum(lam*c[0:n])  
-    
-    return f, sigmaSquare    
-    

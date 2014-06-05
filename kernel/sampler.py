@@ -4,11 +4,13 @@ Created on May 2, 2014
 @author: daon
 '''
 import numpy as np
-import emcee as mc
 import kernel.kriging as kg 
 import kernel.truth as truth
 import kernel.aux as aux
 import kernel.config as cfg
+import emcee as mc
+
+
 
 
 # return the interpolated f
@@ -31,34 +33,13 @@ def lnprob(s, CFG):
     if (np.linalg.norm(s, np.inf)  >  M):
         return -np.inf
     
-    # use gaussian process interpolation ( = kriging )
-    # to estimate the value of the log likelihood in a new 
+    # use  kriging to estimate the the log likelihood in a new 
     # location, given previous observations
-    # C = aux.covMat(X,r)
     mu, sig = kg.kriging(s, CFG)
 
-    # we return only the interpolated value of the log likelihood
-    # we have no use for the standard deviation here
+    # return the interpolated value only - no use for the std dev
     return mu
     
-#def oldLnprob(s, X, F, C, M, r):
-    
-    # we insist that M > |s| in sup norm
-    # we should also make sure that all observations 
-    # satisfy |X[j]| < M
-    #if (np.linalg.norm(s, np.inf)  >  M):
-    #    return -np.inf
-    
-    # use gaussian process interpolation ( = kriging )
-    # to estimate the value of the log likelihood in a new 
-    # location, given previous observations
-    # C = aux.covMat(X,r)
-    #mu, sig = kg.oldKriging(s, X, F, C, r)
-
-    # we return only the interpolated value of the log likelihood
-    # we have no use for the standard deviation here
-    #return mu
-
 
 # this procedure samples a distribution. this distribution is defined by 
 # kriging some previously collected data and interpolating it to give a 
@@ -69,7 +50,7 @@ def lnprob(s, CFG):
 # C, M, r - see documentation above for lnprob
 
 def sampler(CFG): #X, F, M, r, *args):
-    
+    # print np.random.get_state()
     # unpack the data in CFG
     X = CFG.X
     F = CFG.F
@@ -79,30 +60,26 @@ def sampler(CFG): #X, F, M, r, *args):
     # the number of space dimensions, corresponds to the length 
     ndim = len(X[0])
     nwalkers =  2*ndim + 4
+    burn = 150*ndim**(1.5)
 
-    # calculate the inverse covariance that we'll use for this run
-    Cinv = aux.augCovMat(X, r)
     
-    # Choose an initial set of positions for the walkers. these positions are uniform
-    # in the box [-M,M]^ndim
+    # the initial set of positions are uniform  in the box [-M,M]^ndim
     p0 = np.random.rand(ndim * nwalkers) #choose U[0,1]
     p0 = ( p0  - 0.5 )*M # shift and stretch
     p0 = p0.reshape((nwalkers, ndim)) # reshape
     
-    # Initialize the sampler with the chosen specs. Use either the old or the new kriging
+    # Initialize the sampler with the chosen specs.
     sam = mc.EnsembleSampler(nwalkers, ndim, lnprob, args=[ CFG ])
-    #sam = mc.EnsembleSampler(nwalkers, ndim, oldLnprob, args=[ X, F, C,M, r])
     
     # Run some steps as a burn-in.
-    pos, prob, state = sam.run_mcmc(p0, 100)
+    
+
+    pos, prob, state = sam.run_mcmc(p0, burn, rstate0 = CFG.state)
+    CFG.state = np.random.get_state()
+    #print CFG.state
     
     # record the position of first walker
     s = pos[0,:]
-    
-    
-    
-    #print "this is X:         ---------------" 
-    #print X
     
     # calculate the corresponding log likelihood
     f = np.array( [ truth.trueLL(s) ] )
@@ -113,10 +90,6 @@ def sampler(CFG): #X, F, M, r, *args):
     
     cfg.Config.setMatrices(CFG)
     
-    #print "f =    -----------------"
-    #print f
-    #print "this is F:           ----------"
-    #print F
-    
     # return the sample
+    #print s
     return s

@@ -9,8 +9,13 @@ import math as math
 # calculate an autocorrelation
 def cov(x,y,r):
     temp = np.linalg.norm(x-y)
-    return math.exp(  -temp*temp/(2*r*r)  ) 
+    return  math.exp(  -temp*temp/(2*r*r)  ) 
 
+def indCov(x,y,r):
+    if (x == y ):
+        return 1
+    else:
+        return 0
 # create the inverse of the covariance matrix:
 def invCovMat(X,r): 
     
