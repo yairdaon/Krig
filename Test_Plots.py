@@ -17,44 +17,36 @@ upper = np.zeros( n )
 lower = np.zeros( n )
 limit = np.ones( n )
 
-#X = []
+X = []
 x1 =  np.array( [ 0.5 ] )
 x2 =  np.array( [ 1.0 ] )
 x3 =  np.array( [ 1.5 ] )
 x4 =  np.array( [ 1.25 ] )
-#X.append(x1)
-#X.append(x2)
-#X.append(x3)
-#X.append(x4)
+X.append(x1)
+X.append(x2)
+X.append(x3)
+X.append(x4)
 
-#F = []
+F = []
 f1 = np.array( [  2.5  ])
 f2 = np.array( [  0.5  ])
 f3 = np.array( [  .75  ])
 f4 = np.array( [  1.5  ])
-#F.append(f1) 
-#F.append(f2)
-#F.append(f3) 
-#F.append(f4)
+F.append(f1) 
+F.append(f2)
+F.append(f3) 
+F.append(f4)
 
 a = cfg.Config()
-cfg.Config.addPair(a, x1, f1)
-cfg.Config.addPair(a, x2, f2)
-cfg.Config.addPair(a, x3, f3)
-cfg.Config.addPair(a, x4, f4)
+for i in range( len(X) ):
+    cfg.Config.addPair(a, X[i], F[i]) 
 cfg.Config.setR(a, 0.5)
 cfg.Config.setMatrices(a)
-#limAtInfty = cfg.Config.getLimit(a)
-limAtInfty = a.getLimit()
-#print np.shape( a.cm )
+limAtInfty = a.getLimitSVD()
+
 # calculate the functions for the given input
-for j in range(0,n):
-
-    
+for j in range(0,n):    
     v = kg.kriging(x[j] ,a)
-    #print np.shape( a.cm )
-
-    #print a
     f[j] = v[0]
     upper[j] = v[0] + 1.96*v[1] 
     lower[j] = v[0] - 1.96*v[1]

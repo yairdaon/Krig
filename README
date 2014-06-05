@@ -1,3 +1,3 @@
-This package contains computational kernel and tests for kriging a gaussian process.
-Essentially, it performs interpolation (not polynomial) in a better (more robust using less computations) way than other methods.
+This package contains computational kernel and tests for computing a log-likelihood surface.
+We use kriging from know observations to interpolate the log-likelihood. 
 If you've stumbled upon this project, please note that it is still in process of building, so do not rely on it too much. It will be better in the future.

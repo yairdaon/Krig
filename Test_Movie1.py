@@ -11,24 +11,29 @@ import kernel.kriging as kg
 import kernel.sampler as smp
 import kernel.truth as truth
 import numpy as np
-#import emcee as mc
 import matplotlib.pyplot as plt
-import string as st
 import kernel.config as cfg
-
+import math
 np.random.seed(1792)
 
-#     Parameters for the algorithm
-nf    = 20        # The number of evaluations of the true likelihood
-r     = 1.3       # The length scale parameter in the Gaussian process covariance function.
-M = 20.0
-f = truth.trueLL                    # the true log-likelihood function
 
+# RUN PARAMETERS!!!
+#     Parameters for the algorithm
+r     = 4       # The length scale parameter in the Gaussian process covariance function.
+f = truth.trueLL                    # the true log-likelihood function
+M = 6.0
+xMin = -M
+xMax = M
+yMax = math.sqrt(np.max( np.abs(f( np.arange(xMin,xMax, 1.0)))))
+yMin = -yMax
+x = np.arange(xMin, xMax, 0.05)
+delay = 5
+nf    = 30        # The number of evaluations of the true likelihood
 
 #    Start the algorithm using these points
 StartPoints = []
-StartPoints.append( np.array( [ -0.5 ] ) )
-StartPoints.append( np.array( [  0.5 ] ) )
+StartPoints.append( np.random.rand(1) )
+StartPoints.append( np.random.rand(1) )
 
 #     Initializations of the algorithm
 a = cfg.Config()
@@ -40,38 +45,28 @@ cfg.Config.setM(a, M)
 cfg.Config.setMatrices(a)
 
 
-# plot parameters
-delay = 8
-# xMin = -M
-# xMax =  M
-yMin = -60000000.0
-yMax = -yMin
 
-x = np.arange(-M, M, 0.05)
-n = len(x)
-y = np.zeros( x.shape )
+kriged = np.zeros( x.shape )
 limit = np.zeros( x.shape )
 true = f(x) # the real log likelihood
-
 for frame in range (nf+1):
     limAtInfty = cfg.Config.getLimitSVD(a)
-    for j in range(0,n):
-        tmp = kg.kriging(x[j] ,a)
-        y[j] = tmp[0]
+    for j in range(0,len(x)):
+        kriged[j] = kg.kriging(x[j] ,a)[0]
         limit[j] = limAtInfty
         
     for k in range(delay):
         plt.figure( frame*delay + k )
         
-        curve1  = plt.plot(x, y , label = "kriged value")
-        curve2 =  plt.plot(x, true, label = " real value ")
-        curve3 =  plt.plot( a.X, a.F, 'bo', label = " sampled points ")
+        curve1  = plt.plot(x, kriged , label = "kriged log-likelihood")
+        curve2 =  plt.plot(x, true, label = "true log-likelihood")
+        curve3 =  plt.plot( a.X, a.F, 'bo', label = "sampled points ")
         curve4  = plt.plot(x, limit, 'g', label = "kriged value at infinity")
 
         plt.setp( curve1, 'linewidth', 3.0, 'color', 'k', 'alpha', .5 )
         plt.setp( curve2, 'linewidth', 1.5, 'color', 'r', 'alpha', .5 )
 
-        plt.axis([-M, M, yMin, yMax])
+        plt.axis([xMin, xMax, yMin, yMax])
         PlotTitle = 'Kriged Log-Likelihood Changes in Time. r = ' + str(r)
         plt.title( PlotTitle )
         textString = 'using  ' + str(frame ) + ' sampled points' 
@@ -81,7 +76,7 @@ for frame in range (nf+1):
         plt.savefig(FrameFileName)
         plt.close(frame*delay + k)
         if (frame*delay + k) % 15 == 0:
-            print "saved file " + FrameFileName + ".  " + str(frame*delay) +  " / " + str(nf*delay) 
+            print( "saved file " + FrameFileName + ".  " + str(frame*delay) +  " / " + str(nf*delay) )
     smp.sampler(a)
 
         

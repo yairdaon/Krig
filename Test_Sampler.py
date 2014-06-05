@@ -8,6 +8,7 @@ import kernel.kriging as kg
 import kernel.sampler as smp
 import matplotlib.pyplot as plt
 import numpy as np
+import kernel.config as cfg
 
 
 X = []
@@ -17,6 +18,12 @@ F = []
 F.append(np.array( [2.45]))
 M = 2.0
 r = 1.0
+a = cfg.Config()
+a.addPair(X[0], F[0])
+a.setR(r)
+a.setM(M)
+a.setMatrices()
+
 smp.sampler(X, F, M, r)
 print "X = " + str(X)
 print "F = " + str(F)

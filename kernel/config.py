@@ -10,59 +10,68 @@ import math
    
 
 class Config:   
-         
-    X = []
-    F = []
-    r = 1.0
-    state = np.random.get_state()
-    icm  = np.array( [] )
-    acm  = np.array( [] )
-    cm   = np.array( [] )
-    iacm = np.array( [] )
+    """
+    This class holds all the data needed to do kriging, resample etc.
+    """
     
+    
+    
+    # state of PRNG, for reproducibility purposes
+    state = np.random.get_state()
+        
     def __init__(self):
-        pass
+        
+        # list observations... 
+        self.X = []
+        # ...and corresponding log-likelihoods
+        self.F = []
+    
+        # a hyper parameter
+        self.r = 1.0
+    
+        # the regularization used in the kriging procedure
+        self.reg = 100*np.finfo(np.float).eps
+
     
     def addPair(self,x,f):
+        """ 
+        add a location and its log likelihood to the lists
+        """
+        
         self.X.append(x)
         self.F.append(f)
         
     def setR( self,t):
+        """
+        set the hyper parameter r and the regularization
+        we used in the kriging procedure
+        """
         self.r = t
         self.reg = 100*math.sqrt(self.r)*np.finfo(np.float).eps
                           
     def setMatrices(self):
-        
-        #print("settin  matrices")
-        #self.cm  = aux.covMat(self.X,self.r)       # cm   = covariance matrix
-        #self.icm = aux.invCovMat(self.X,self.r)    # icm  = inverse covariance matrix
-        #print np.shape(self.cm)
-        #print
+        """ 
+        calculates the SVD of the augmented covariance matrix. 
+        """
         
         self.acm = aux.augCovMat(self.X,self.r)    # acm  = augmented covariance matrix
-        # self.iacm= aux.invAugCovMat(self.X,self.r) # iacm = inverse augmented covariance matrix
         U, S, V = np.linalg.svd(self.acm, full_matrices = True, compute_uv = True)
         self.U = U
         self.S = S
         self.V = V
-        #self.condition()
-        #print(n)
-        #print(np.shape(self.cm))
-        #print( self.cm 
-        # print "icmCond = " + str( self.icmCond ) 
-        # print "acmCond = " + str( self.acmCond ) 
-        # print "cmCond = "  + str( self.cmCond  ) 
-        # print "iacmCond = "+ str( self.iacmCond ) 
-  
-    def setM(self, N):
-        self.M = N
+          
+    def setM(self, M):
+        """ 
+        M is the size of box we're interested in. We set the probability outside the box
+        to be zero
+        """
+        self.M = M
 
 
-    # use SVD to find condition number of matrix
     def condition(self):
-        
-        s = np.linalg.svd( self.icm )[1]
-        self.icmCond = max(s)/min(s)
+        """
+        use SVD to find condition number of matrix
+        """
         
         s = np.linalg.svd( self.acm )[1]
         self.acmCond = max(s)/min(s)
@@ -70,33 +79,18 @@ class Config:
         s = np.linalg.svd( self.cm )[1]
         self.cmCond = max(s)/min(s)
         
-        #s = np.linalg.svd( self.iacm )[1]
-        #self.iacmCond = max(s)/min(s)
-        
-        
-    # calculates the kriged value at infinity    
-    def getLimit(self):
-        
-        n = len(self.X)
-        m = 1.0/np.sum(self.icm)
-        lam = np.dot( self.icm, np.ones( (n,1) ) )
-        
-        lam = m*lam
-        self.limAtInfty = np.zeros( np.shape( self.F[0] ))
-        for i in range(n):
-            self.limAtInfty = self.limAtInfty + lam[i]*self.F[i] 
-        return self.limAtInfty
- 
-
+     
     def getLimitSVD(self):
-           
-        
+        """
+        returns the kriged value "at infinity"
+        very similar to the SVDkriging procedure
+        """
+       
         F = self.F
         S = self.S
         reg = self.reg
         n = len(F)
         
-
         c = np.zeros( n+1 )
         c[n] =  1.0
         b = np.dot(np.transpose(self.U), c)

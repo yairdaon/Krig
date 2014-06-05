@@ -5,7 +5,7 @@ SUFFIXES :=
 
 PYTHON  = python2.6
 FFMPEG  = ffmpeg           
-
+PLAY    = vlc
 #          Lists of files
 
 
@@ -27,7 +27,7 @@ movie1:
 	rm -f Movie.mpg                #  delete the existing movie, if there is one
 	$(PYTHON) Test_Movie1.py
 	$(FFMPEG) -i MovieFrames/Frame%d.png Movie.mpg
-
+	$(PLAY) Movie.mpg
 
 #	Makin tarball
 
@@ -39,5 +39,3 @@ tarball: $(All_SOURCES)
 movieball: $(MOVIE_SOURCES)
 	rm -f MovieFrames/*.png        #  delete any existing frames
 	tar -cvf MovieMaker1.tar $(MOVIE_SOURCES) 
-
-# TESTING!!!
