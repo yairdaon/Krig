@@ -23,16 +23,13 @@ MOVIE_SOURCES = $(KERNEL_SOURCES) Makefile MovieFrames Test_Movie1.py
 
 movie1:
 	clear
-	rm -f MovieFrames/*.png        #  delete any existing frames
-	rm -f Movie.mpg                #  delete the existing movie, if there is one
-	$(PYTHON) Test_Movie1.py
-	$(FFMPEG) -i MovieFrames/Frame%d.png Movie.mpg
-	$(PLAY) Movie.mpg
+	$(PYTHON) Test_Movie1.py  # the python script creates and plays the movie on its own
 
 #	Makin tarball
 
 tarball: $(All_SOURCES)  
-	rm -f MovieFrames/*.png        #  delete any existing frames
+	rm -f MovieFrames/*.png        #  delete any ex$(FFMPEG) -i MovieFrames/Frame%d.png Movie.mpg
+	$(PLAY) Movie.mpgisting frames
 	rm -f Movie.mpg                #  delete the existing movie, if there is one
 	tar -cvf KrigingSampler.tar $(ALL_SOURCES) 
 

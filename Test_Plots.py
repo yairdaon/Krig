@@ -8,9 +8,11 @@ import kernel.kriging as kg
 import matplotlib.pyplot as plt
 import numpy as np
 import kernel.config as cfg
+import kernel.type as type
+import kernel.truth as truth
 
 # allocating memory
-x = np.arange(-2, 4, 0.05)
+x = np.arange(-10, 10, 0.05)
 n = len(x)
 f = np.zeros( n )
 upper = np.zeros( n )
@@ -18,30 +20,22 @@ lower = np.zeros( n )
 limit = np.ones( n )
 
 X = []
-x1 =  np.array( [ 0.5 ] )
+x1 =  np.array( [ 1.1 ] )
 x2 =  np.array( [ 1.0 ] )
-x3 =  np.array( [ 1.5 ] )
-x4 =  np.array( [ 1.25 ] )
+x3 =  np.array( [ -1.1] )
+x4 =  np.array( [ -3.0] )
 X.append(x1)
 X.append(x2)
 X.append(x3)
 X.append(x4)
 
-F = []
-f1 = np.array( [  2.5  ])
-f2 = np.array( [  0.5  ])
-f3 = np.array( [  .75  ])
-f4 = np.array( [  1.5  ])
-F.append(f1) 
-F.append(f2)
-F.append(f3) 
-F.append(f4)
-
 a = cfg.Config()
-for i in range( len(X) ):
-    cfg.Config.addPair(a, X[i], F[i]) 
-cfg.Config.setR(a, 0.5)
-cfg.Config.setMatrices(a)
+for v in X:
+    a.addPair(v, truth.trueLL(v))
+    
+a.setType(type.RASMUSSEN_WILLIAMS)
+a.setR(1.3)
+a.setMatrices()
 limAtInfty = a.getLimitSVD()
 
 # calculate the functions for the given input
@@ -56,15 +50,17 @@ curve1  = plt.plot(x, f, label = "kriged value")
 curve2  = plt.plot(x, upper, label = "1.96 standard deviations")
 curve3  = plt.plot(x, lower)
 curve4  = plt.plot(x, limit, label = "kriged value at infinity")
+curve5 =  plt.plot( a.X, a.F, 'bo', label = "sampled points ")
 
 plt.setp( curve1, 'linewidth', 3.0, 'color', 'k', 'alpha', .5 )
 plt.setp( curve2, 'linewidth', 1.5, 'color', 'r', 'alpha', .5 )
 plt.setp( curve3, 'linewidth', 1.5, 'color', 'r', 'alpha', .5 )
 plt.setp( curve4, 'linewidth', 1.5, 'color', 'b', 'alpha', .5 )
 
-plt.legend()
-plt.title("Kriging with bounds")
-plt.show()
+#plt.axis([-1, 1, -10, 0])
 
+plt.legend(loc=1,prop={'size':6})    
+plt.title("Kriging with bounds using " + a.algType.getDescription() )
+plt.show()
 
 

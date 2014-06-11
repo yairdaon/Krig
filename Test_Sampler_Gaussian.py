@@ -10,8 +10,8 @@ import numpy as np
 import kernel.config as cfg
 
 a = cfg.Config()
-k = 50
-n = 250
+k = 60
+n = 1500
 M = 10.0
 r = 1.3
 
@@ -31,5 +31,5 @@ for i in range(n):
     print( "Gaussian test, sample " + str(i) + " of " + str(n))
     smp.sampler(a)
 
-plt.hist(a.X, 50)
+plt.hist(a.X, 60)
 plt.show()

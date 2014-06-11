@@ -13,6 +13,11 @@ def cov(x,y,r):
     temp = np.linalg.norm(x-y)
     return  math.exp(  -temp*temp/(2*r*r)  ) 
 
+    # if we want zero decorrelation time (r->0) comment the above return statement
+    if x==y:
+        return 1
+    else:
+        return 0
 
 
 def augCovMat(X,r):
@@ -59,3 +64,14 @@ def covMat(X,r):
             C[j,i] = C[i,j]
         C[i,i] = cov(X[i], X[i], r)
     return C
+
+def tychonoffSvdSolver( U, S, V, b, reg):
+    #print("solver")
+    #print b
+    #print
+    c = np.dot(np.transpose(U), b)  # c = U^t * b
+    y = c*S/(S*S + reg )            # y_i  = s_i * c_i  /  (s_i^2 + reg
+    x = np.dot( np.transpose(V) ,  np.transpose(y) )  # x = V^t * y
+    
+    #print x
+    return x

@@ -12,6 +12,6 @@ def trueLL(s):
     this is where it goes
     """
     #return -2*s**4 + 15*s**2
-    #return -s*s
-    return -(s**6  + 3.5*s**4  - 2.5*s**3 - 12.5*s**2 + 1.5*s + 9 )
+    #return -s*s/2.0
+    return -(s**6  + 3.5*s**4  - 2.5*s**3 - 12.5*s**2 + 1.5*s )
     #return np.ones( np.shape(s))

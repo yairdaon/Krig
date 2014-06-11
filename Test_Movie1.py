@@ -14,26 +14,35 @@ import numpy as np
 import matplotlib.pyplot as plt
 import kernel.config as cfg
 import math
-np.random.seed(1792)
+import os
+import kernel.type as type
 
+np.random.seed(1792) # for reproducibility
+os.system("mkdir MovieFrames")
+os.system("rm -f MovieFrames/*.png")     
+os.system("rm -f Movie1.mpg")     
+              
 
 # RUN PARAMETERS!!!
 #     Parameters for the algorithm
-r     = 4       # The length scale parameter in the Gaussian process covariance function.
+r     = 1.3       # The length scale parameter in the Gaussian process covariance function.
 f = truth.trueLL                    # the true log-likelihood function
-M = 6.0
+M = 4.0
 xMin = -M
 xMax = M
-yMax = math.sqrt(np.max( np.abs(f( np.arange(xMin,xMax, 1.0)))))
+yMax = np.max( np.abs(f( np.arange(xMin,xMax, 1.0)))) 
+#yMax = math.sqrt( yMax )
 yMin = -yMax
 x = np.arange(xMin, xMax, 0.05)
-delay = 5
-nf    = 30        # The number of evaluations of the true likelihood
+delay = 8
+nf    =10       # The number of evaluations of the true likelihood
 
 #    Start the algorithm using these points
 StartPoints = []
-StartPoints.append( np.random.rand(1) )
-StartPoints.append( np.random.rand(1) )
+StartPoints.append( np.array( [ 0 ] )  )#-0.5)*(M/2.0) )
+StartPoints.append( np.array( [0.5] )  )#-0.5)*(M/2.0) )
+##StartPoints.append( np.array( [ -M/2.0 ]))
+##StartPoints.append( np.array( [  M/2.0 ]))
 
 #     Initializations of the algorithm
 a = cfg.Config()
@@ -42,7 +51,7 @@ for point in StartPoints:
     cfg.Config.addPair(a, point, f(point))
 cfg.Config.setR(a, r)
 cfg.Config.setM(a, M)
-cfg.Config.setMatrices(a)
+cfg.Config.setType(a, type.RASMUSSEN_WILLIAMS)
 
 
 
@@ -67,7 +76,7 @@ for frame in range (nf+1):
         plt.setp( curve2, 'linewidth', 1.5, 'color', 'r', 'alpha', .5 )
 
         plt.axis([xMin, xMax, yMin, yMax])
-        PlotTitle = 'Kriged Log-Likelihood Changes in Time. r = ' + str(r)
+        PlotTitle = 'Kriged Log-Likelihood Changes in Time. r = ' + str(r) + " Algorithm: " + a.algType.getDescription()
         plt.title( PlotTitle )
         textString = 'using  ' + str(frame ) + ' sampled points' 
         plt.text(1.0, 1.0, textString)
@@ -75,10 +84,11 @@ for frame in range (nf+1):
         FrameFileName = "MovieFrames/Frame" + str(frame*delay + k) + ".png"
         plt.savefig(FrameFileName)
         plt.close(frame*delay + k)
-        if (frame*delay + k) % 15 == 0:
+        if (frame*delay + k) % 10 == 0:
             print( "saved file " + FrameFileName + ".  " + str(frame*delay) +  " / " + str(nf*delay) )
     smp.sampler(a)
 
-        
-        
-        
+os.system("ffmpeg -i MovieFrames/Frame%d.png Movie1.mpg") 
+os.system("vlc Movie1.mpg")     
+    
+            
