@@ -9,11 +9,11 @@ import numpy as np
 import kernel.kriging as kg
 
 class TestKriging(unittest.TestCase):
-    """ 
+    ''' 
     test kriging by makin sure the procedure outputs
     a constant 1.5 when it is given constant 1.5 
     input
-    """
+    '''
     def setUp(self):
         
         r = 1.0

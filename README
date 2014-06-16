@@ -1,3 +1,6 @@
 This package contains computational kernel and tests for computing a log-likelihood surface.
-We use kriging from know observations to interpolate the log-likelihood. 
+We use kriging from known observations to interpolate the log-likelihood and to sample from it.
 If you've stumbled upon this project, please note that it is still in process of building, so do not rely on it too much. It will be better in the future.
+
+Here's what is going on:
+You know the EXACT values of some log likelihood function up to some constant for some locations. You want to predict the log-likelihood in other locations.  So you want to INTERPOLATE it.  This is the job of the kriging module.You can also calculate it but the calculation takes a whole. Now you want to calculate another log likelihood. You SAMPLE from the interpolated log-likelihood. Then, in the location of the sample you calculate the 

@@ -7,25 +7,24 @@ import numpy as np
 import math
 
 def cov(x,y,r):
-    """
+    '''
     calculate an autocovariance
-    """
+    '''
+    
     temp = np.linalg.norm(x-y)
-    return  math.exp(  -temp*temp/(2*r*r)  ) 
+    cov =  math.exp(  -temp*temp/(2*r*r)  ) 
 
-    # if we want zero decorrelation time (r->0) comment the above return statement
-    if x==y:
-        return 1
-    else:
-        return 0
-
+    # if we consider noisy observations
+    if np.all(x==y): cov + 0.5
+    
+    return cov
 
 def augCovMat(X,r):
-    """
+    '''
     return the augmented covariance matrix for the observations
-    """
+    '''
     
-    #decide on the size 
+    #find the size 
     n = len(X)
     
     # allocate memory
@@ -47,9 +46,9 @@ def augCovMat(X,r):
 
 
 def covMat(X,r): 
-    """
-    return the covariance matrix for the observations
-    """
+    '''
+    create return the covariance matrix for the observations
+    '''
     
     #decide on the size of
     n = len(X)
@@ -66,12 +65,15 @@ def covMat(X,r):
     return C
 
 def tychonoffSvdSolver( U, S, V, b, reg):
-    #print("solver")
-    #print b
-    #print
+    '''
+    solve Ax = b  using tychonoff regularization.
+    U, S, V is the SVD of A ( A = USV^t )
+    reg is the regularization coefficient
+    '''
+    
+    b = np.ravel(b)
     c = np.dot(np.transpose(U), b)  # c = U^t * b
     y = c*S/(S*S + reg )            # y_i  = s_i * c_i  /  (s_i^2 + reg
     x = np.dot( np.transpose(V) ,  np.transpose(y) )  # x = V^t * y
     
-    #print x
     return x

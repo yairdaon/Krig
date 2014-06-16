@@ -6,17 +6,19 @@ Created on Apr 29, 2014
 
 import numpy as np
 import math
-import kernel.aux as aux
-import kernel.config as cfg
-import kernel.type as type
+import aux
+import config as cfg
+import type
 
 def kriging(s, CFG):
-    """
+    '''
     this is where we decide actually which kriging subroutine we use.
-    calling them always has the same syntax, though. 
-    """
+    calling them always has the same syntax, though.
+    return the interpolated f
+    here this is interpreted as a log-likelihood \ log-probability
+    '''
     
-    # make sure matrices are ready    
+    # make sure the matrices used in the kriging computation are ready    
     CFG.setMatrices()
     
     # choose among the different algorithms
@@ -31,10 +33,9 @@ def kriging(s, CFG):
     if CFG.algType == type.RASMUSSEN_WILLIAMS:
         f, sigSquare =  rwKriging(s, CFG)    
         return f, math.sqrt( abs(sigSquare) ) 
-        
  
 def acmSvdKriging(s, CFG):
-    """
+    '''
     do krigin using SVD and tychonoff regularization.
 
     we are looking to solve the following:
@@ -54,7 +55,7 @@ def acmSvdKriging(s, CFG):
     CFG - an object that contains all the data we need for the computation
     
     returns - mean and standard deviation for point s
-    """
+    '''
     # unpack the variables
     X = CFG.X
     F = CFG.F
@@ -83,14 +84,16 @@ def acmSvdKriging(s, CFG):
         
     # calculate the variance    
     sigmaSquare = m + aux.cov(0,0,r) - np.sum(lam*c[0:n])  
-    if sigmaSquare  < 0 and -sigmaSquare > 100*reg:
-        print(" negative variance ")
+    
+    # we want to know if the variance turns out to be negative!
+    if sigmaSquare  < 0 and -sigmaSquare > reg:
+        print("Negative kriged variance. Probably because data points are too close. ")
         
     return f, sigmaSquare   
 
 
 def cmSvdKriging(s, CFG):
-    """
+    '''
     do krigin using SVD and tychonoff regularization.
 
     we are looking to solve the following:
@@ -108,7 +111,7 @@ def cmSvdKriging(s, CFG):
     CFG - an object that contains all the data we need for the computation
     
     returns - mean and standard deviation for point s
-    """
+    '''
     # unpack the variables
     X = CFG.X
     F = CFG.F
@@ -134,27 +137,28 @@ def cmSvdKriging(s, CFG):
     lam = np.dot( np.transpose(V) ,  np.transpose(x) )
     
     f = np.zeros( len(F[0]) )
-   
     for i in range(n):
         f = f + lam[i] * F[i]
+        
     sigmaSquare =  aux.cov(0,0,r) - np.sum(lam*c[0:n])
-    if sigmaSquare  < 0 and -sigmaSquare > 10*reg:
-        print(" negative variance ")
+    
+     # we want to know if the variance turns out to be negative!
+    if sigmaSquare  < 0 and -sigmaSquare > reg:
+        print("Negative kriged variance. Probably because data points are too close. ")
+        
     return f, sigmaSquare   
 
 
 def rwKriging(s, CFG):
-    """
+    '''
     use algortihm 2.1 from page 19 of the book 
     "Gaussian Processes for Machine Learning" by
     Rasmussen and Wiliams. They solve using Cholesky. Here
     we use the SVD with tychonoff regularization instead.
-    """
+    '''
     # unpack the variables
     X = CFG.X
     y = np.array( CFG.F )
-    
-    
     y = np.ravel(y)
 
     # number of samples we have.

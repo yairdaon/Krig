@@ -1,7 +1,11 @@
 '''
-Created on Jun 9, 2014
+Created on Jun 14, 2014
 
-@author: daon
+@author: Yair Daon. email: fisrtname.lsatname@gmail.com
+Feel free to write to me about my code!
+
+This module creates static classes that are used as flags
+The user (you!) SHOULD NOT create new instances of these classes
 '''
 
 class Type(object):
@@ -20,13 +24,14 @@ class Type(object):
         self._matrixType = typeString
 
     def getDescription(self):
-        """
+        '''
         return the type of algorithm an instance defines
-        """
+        '''
         return self._matrixType
-    
+
+# here are the instances of the above class. 
 AUGMENTED_COVARIANCE = Type( "Augmented Covariance" ) # Use augmented covariance matrix. Unbiased predictor.
 COVARIANCE           = Type( "Covarince Matrix" ) # Covariance matrix. Not an unbiased predictor.
 RASMUSSEN_WILLIAMS   = Type( " Rasmussen Williams") # algorithm 2.1 in R&W "gaussian Process for Machine Learning"      
+
   
-    

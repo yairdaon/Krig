@@ -4,18 +4,19 @@ Created on May 2, 2014
 @author: daon
 '''
 import numpy as np
-import kernel.kriging as kg 
-import kernel.truth as truth
-import kernel.aux as aux
-import kernel.config as cfg
+import kriging as kg 
+import truth 
+import aux 
+import config as cfg
 import emcee as mc
 
 
 
 
 
+
 def lnprob(s, CFG):
-    """
+    '''
     return the interpolated f
     here this is interpreted as a log-likelihood \ log-probability
     input:
@@ -27,7 +28,7 @@ def lnprob(s, CFG):
     if |x| > M (the sup norm) then the likelihood
     is zero (so the log-likelihood is -infinity)
     a hyper parameter, see the documentation for aux.cov(...) procedure
-    """
+    '''
     
     M = CFG.M
     # we ensure M > |s| in sup norm
@@ -44,18 +45,14 @@ def lnprob(s, CFG):
     return mu
     
 
-
 def sampler(CFG):
-    """
+    '''
     this procedure samples a distribution. this distribution is defined by 
     kriging some previously collected data and interpolating it to give a 
     distribution over states space.
     input:    
-    X are locations
-    F are calculated log-likelihood values (expensive to calculate)
-    C, M, r - see documentation above for lnprob
-    """
-    
+    CFG is a container object that holds all required data. see the config.py module
+    '''
     
     # unpack the data in CFG
     X = CFG.X
@@ -73,13 +70,13 @@ def sampler(CFG):
     
     # the initial set of positions are uniform  in the box [-M,M]^ndim
     p0 = np.random.rand(ndim * nwalkers) #choose U[0,1]
-    p0 = ( p0  - 0.5 )*M # shift and stretch
+    p0 = ( 2*p0  - 1.0 )*M # shift and stretch
     p0 = p0.reshape((nwalkers, ndim)) # reshape
     
     # Initialize the sampler with the chosen specs.
     sam = mc.EnsembleSampler(nwalkers, ndim, lnprob, args=[ CFG ])
     
-    # Run some steps as a burn-in.
+    # Run some steps as a burn-in. use last as a sample
     pos, prob, state = sam.run_mcmc(p0, burn, rstate0 = CFG.state)
     CFG.state = np.random.get_state()
     
@@ -87,11 +84,12 @@ def sampler(CFG):
     s = pos[0,:]
     
     # calculate the corresponding log likelihood
-    f = np.array( [ truth.trueLL(s) ] )
+    f = np.array( [ CFG.LL(s) ] )
     
-    # append to the list of "known" log likelihoods
-    cfg.Config.addPair(CFG, s, f)
-    cfg.Config.setMatrices(CFG)
+    # append to the list of "known" log likelihoods if instructed to do so
+    if CFG.addSamplesToDataSet == True:
+        cfg.Config.addPair(CFG, s, f)
+        cfg.Config.setMatrices(CFG)
     
     # return the sample
     return s
