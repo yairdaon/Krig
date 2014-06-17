@@ -40,7 +40,7 @@ Set it using a container's 'setAddSamplesToDataSet' method.
 
 type - a class that tells you what kind of gaussian process regression algorithm a container is using. In a container object the pointer variable is 'algType'.
 See the 'kernel.type' module.
-Set it using a container's 'setAlgType' method.
+Set it using a container's 'setType' method.
 
 
 
