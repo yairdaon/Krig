@@ -39,17 +39,12 @@ tests:
 	$(PYTHON) Test_Reproducible.py
 	$(PYTHON) Test_Plots.py
 
-test_long:
+long:
 	clear
 	$(PYTHON) Test_Movie1D.py
 	$(PYTHON) Test_Movie2D.py
 	$(PYTHON) Test_Gaussian.py
-	$(PYTHON) Test_MinMax.py
 
-beginner:
-	clear
-	$(PYTHON) Test_Start_Here.py
-	
 #	Makin tarball
 
 tarball: $(All_SOURCES)  

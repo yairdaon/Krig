@@ -64,7 +64,7 @@ class Config:
         '''
         
         # the first points are at the edges...
-        x = np.ones(n)*self.M
+        x = np.ones(n)*2*self.M/3
         self.addPair(x, self.LL(x))
         self.addPair(-x, self.LL(-x) )
     
