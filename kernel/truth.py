@@ -1,18 +1,30 @@
 '''
-Created on May 12, 2014
+Created on Jun 16, 2014
 
-@author: daon
+@author: Yair Daon. email: fisrtname.lsatname@gmail.com
+Feel free to write to me about my code!
+
+these methods return what we believe is the true log-likelihood.
+you tell the container object about the function you want to use using the
+
+    
 '''
 import numpy as np
 
 def trueLL(s):
     '''
-    return what we believe is the true log-likelihood.
-    If you have some external procedure to calculate log-likelihood, 
-    this is where it goes
-    
+    decide on the default log likelihood. you may also change 
+    this if you want to use your own log-likelihood. in that case,
+    don't tell the container - trueLL is the default log-likelihood
     '''
-    
+    return sin1D(s)
+
+
+# Some log likelihoods the tests use
+def sin1D(s):
+    '''
+    a wiggly sine log likelihood
+    '''    
     return np.sin(3*s)
     
 def gaussian1D(s):

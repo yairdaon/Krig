@@ -83,12 +83,16 @@ def sampler(CFG):
     # record the position of first walker
     s = pos[0,:]
     
-    # calculate the corresponding log likelihood
-    f = np.array( [ CFG.LL(s) ] )
-    
-    # append to the list of "known" log likelihoods if instructed to do so
+    # append to the list of exact log likelihoods if instructed to do so
     if CFG.addSamplesToDataSet == True:
+        
+        # calculate the corresponding log likelihood
+        f = np.array( [ CFG.LL(s) ] )
+    
+        # incorporate the new sample to our data set
         cfg.Config.addPair(CFG, s, f)
+        
+        # update the required matrices required fot the kriging calculation
         cfg.Config.setMatrices(CFG)
     
     # return the sample

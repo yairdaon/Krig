@@ -74,7 +74,7 @@ class Test(unittest.TestCase):
         
     def tearDown(self):
         '''
-        after the test was run, create and show the movie.
+        after the test was run - we create and show the movie.
         you need two programs installed on your machine to make this work:
         you need ffmpeg to create the movie from the frames python saves 
         and you need vlc to watch the movie
@@ -87,15 +87,25 @@ class Test(unittest.TestCase):
 
 
     def testMovie2D(self):
+        '''
+        create a 2D movie, based on the data we put in the container object 
+        in the setUp method this method does all the graphics involved
+        since this is a 2D running for lots of points might take a while
+        '''
         
+        # The number of evaluations of the true likelihood
+        # CHANGE THIS FOR A LONGER MOVIE!!!
+        nf    = 80      
         
         # the true log-likelihood function
+        # CHANGE THIS IF YOU WANT YOUR OWN LOG-LIKELIHOOD!!!
         f = self.CFG.LL 
         
         # the size of the box outside of which the probability is zero
         M = self.CFG.M 
         
         # the bounds on the plot axes
+        # CHANGE THIS IF STUFF HAPPEN OUTSIDE THE MOVIE FRAME
         xMin = -M
         xMax = M
         yMax = 2.0
@@ -107,57 +117,67 @@ class Test(unittest.TestCase):
         X, Y = np.meshgrid(a, b)
         
         # we create each frame many times, so the movie is slower and easier to watch
-        delay = 8
-        
-        # The number of evaluations of the true likelihood
-        nf    = 60      
+        delay = 5
         
         # allocate memory for the arrays to be plotted
         kriged = np.zeros( X.shape )
         
-        # the curve of the true log-likelihood
-        #true = f(x) # the real log likelihood
-        
+        # allocate a two dimensional point, for which we calculate kriged value
         p = np.zeros(2)
         
         # create frames for the ffmpeg programs
         for frame in range (nf+1):
-            
-            # the current a value of the kriged interpolant "at infinity"
-            #limAtInfty = self.config.getLimitSVD()
-            
-            # create the kriged curve and the limit curve
+
+            # create the kriged curve 
             for j in range(len(a)):
                 for i in range(len(b)):
                     p[0] = X[j,i]
                     p[1] = Y[j,i]    
                     kriged[j,i] = kg.kriging( p ,self.CFG )[0]
-                    #limit[j] = limAtInfty
-            
+                                
             # each frame is saved delay times, so we can watch the movie at reasonable speed    
             for k in range(delay):
+                
                 fig = plt.figure( frame*delay + k )
                 ax = fig.add_subplot(111, projection='3d')
+                
                 ax.plot_wireframe(X, Y, kriged, rstride=10, cstride=10)
                 ax.set_xlim(xMin, xMax)
                 ax.set_ylim(xMin, xMax)
                 ax.set_zlim(yMin, yMax)
+                
+                xs = np.ravel( np.transpose( np.array( self.CFG.X ) )[0] )
+                ys = np.ravel( np.transpose( np.array( self.CFG.X ) )[1] )
+                zs = np.ravel( np.transpose( np.array( self.CFG.F ) )    )
+                ax.scatter(xs, ys, zs, c=c, marker=m)
 
-                PlotTitle = 'Kriged Log-Likelihood Changes in Time. r = ' + str(self.CFG.r) + " Algorithm: " + self.CFG.algType.getDescription()
+                PlotTitle = 'Kriged LL surface. ' + str(frame) + ' samples. r = ' + str(self.CFG.r) + " Algorithm: " + self.CFG.algType.getDescription()
                 plt.title( PlotTitle )
                 textString = 'using  ' + str(frame ) + ' sampled points' 
-                #plt.text(1.0, 1.0, textString)
+                #plt.text( textString)
                 plt.legend(loc=1,prop={'size':7})    
                 FrameFileName = "MovieFrames2/Frame" + str(frame*delay + k) + ".png"
                 plt.savefig(FrameFileName)
                 plt.close(frame*delay + k)
                 if (frame*delay + k) % 10 == 0:
-                    print( "saved file " + FrameFileName + ".  " + str(frame*delay + k) +  " / " + str(nf*delay) )
+                    print( "saved file " + FrameFileName + ".  " + str(frame*delay + k) +  " / " + str((nf+1)*delay) )
                       
             # IMPORTANT - we sample from the kriged log-likelihood. this is crucial!!!!
             smp.sampler(self.CFG)
-            
 
+
+def randrange(n, vmin, vmax):
+    return (vmax-vmin)*np.random.rand(n) + vmin
+
+
+n = 100
+for c, m, zl, zh in [('r', 'o', -50, -25), ('b', '^', -30, -5)]:
+    xs = randrange(n, 23, 32)
+    ys = randrange(n, 0, 100)
+    zs = randrange(n, zl, zh)
+    
+
+plt.show()
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']
     unittest.main()

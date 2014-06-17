@@ -6,6 +6,7 @@ SUFFIXES :=
 PYTHON  = python2.6
 FFMPEG  = ffmpeg           
 PLAY    = vlc
+
 #          Lists of files
 
 
@@ -17,7 +18,7 @@ TEST_SOURCES     = Test_*.py
 FOR_ALL   = Makefile 
 
 ALL_SOURCES = $(KERNEL_SOURCES) $(TEST_SOURCES) Makefile MovieFrames
-MOVIE_SOURCES = $(KERNEL_SOURCES) Makefile MovieFrames Test_Movie1D.py
+MOVIE_SOURCES = $(KERNEL_SOURCES) Makefile Test_Movie1D.py Test_Movie2D.py
 
 #               Makin Movies!
 
@@ -25,6 +26,10 @@ movie1:
 	clear
 	$(PYTHON) Test_Movie1D.py  # the python script creates and plays the movie on its own
 
+movie2:
+	clear
+	$(PYTHON) Test_Movie2D.py
+	
 tests:
 	clear
 	$(PYTHON) Test_Sampler.py
@@ -32,14 +37,19 @@ tests:
 	$(PYTHON) Test_Simple.py
 	$(PYTHON) Test_Uniform.py
 	$(PYTHON) Test_Reproducible.py
+	$(PYTHON) Test_Plots.py
+
+test_long:
+	clear
+	$(PYTHON) Test_Movie1D.py
+	$(PYTHON) Test_Movie2D.py
+	$(PYTHON) Test_Gaussian.py
 	$(PYTHON) Test_MinMax.py
 
-test_graphics:
+beginner:
 	clear
-	$(PYTHON) Test_Plots.py
-	$(PYTHON) Test_Movie1D.py
-	$(PYTHON) Test_Gaussian.py
-
+	$(PYTHON) Test_Start_Here.py
+	
 #	Makin tarball
 
 tarball: $(All_SOURCES)  
@@ -53,4 +63,4 @@ kernelball: $(KERNEL_SOURCES)
 	 
 movieball: $(MOVIE_SOURCES)
 	rm -f MovieFrames/*.png        #  delete any existing frames
-	tar -cvf MovieMaker1.tar $(MOVIE_SOURCES) 
+	tar -cvf MovieMaker.tar $(MOVIE_SOURCES) 

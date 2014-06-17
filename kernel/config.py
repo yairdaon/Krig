@@ -38,10 +38,9 @@ class Config:
         # are the matrices we use ready or do we need to calculate them
         self.matricesReady = False
         
-        
         # some parameters, default values
         self.r = 1.0 # hyper paramenter
-        self.M = 100.0
+        self.M = 10.0
         self.algType = type.AUGMENTED_COVARIANCE # type of kriging algorithm
         
         # by default we incorporate new samples to our data set
@@ -55,8 +54,19 @@ class Config:
         
         # point to the true log-likelihood that we'll use
         self.LL = truth.trueLL
-    
+
+    def quickSetup(self, n):
+        '''
+        adds only two points so you can get things going quickly!!!
+        n is the dimensionality of input of YOUR log-likelihood
+        to be honest, we can start with only one point also, but
+        starting with two is just as fine
+        '''
         
+        # the first points are at the edges...
+        x = np.ones(n)*self.M
+        self.addPair(x, self.LL(x))
+        self.addPair(-x, self.LL(-x) )
     
     def addPair(self,x,f):
         ''' 
@@ -85,11 +95,12 @@ class Config:
     
     def setLL(self, likelihood):
         '''
-        we use this to tell the sampler what reality is
-        sometimes the sampler wants to know what is the 
-        true log-likelihood. here we set the appropriate 
-        variable to tell the sampler what the true log 
-        likelihood is.
+        we use this to tell the sampler what reality is.
+        we say reality and mean a method to calculate TRUE
+        log-likelihood.
+        likelihood points to your favorite function that calculates log likelihood.
+        your function's input should be a numpy array of length n (the value of n
+        is up to you). 
         '''
         self.LL = likelihood   
                            

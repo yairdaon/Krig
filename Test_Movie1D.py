@@ -40,18 +40,21 @@ class Test(unittest.TestCase):
         os.system("rm -f Movie1.mpg")    
         
         #     Initializations of the container object
-        a = cfg.Config()
-        
+        CFG = cfg.Config()
+
+        # the true log-likelihood function 
+        CFG.LL =  truth.bigPoly1D
+ 
         # make it remember the state of the PRNG
-        a.state = np.random.get_state()
+        CFG.state = np.random.get_state()
         
         # The length scale parameter in the Gaussian process covariance function.
         r = 1.3
-        cfg.Config.setR(a, r) 
+        CFG.setR(r) 
             
         # the size of the box outside of which the probability is zero
-        M = 4.0 
-        cfg.Config.setM(a, M)
+        M = 2.5 
+        CFG.setM(M)
 
         # we know the true log-likelihood in these points
         StartPoints = []
@@ -60,15 +63,14 @@ class Test(unittest.TestCase):
         ##StartPoints.append( np.array( [ -M/2.0 ]))
         ##StartPoints.append( np.array( [  M/2.0 ]))
         
-        f = truth.trueLL # the true log-likelihood function 
         for point in StartPoints:
-            cfg.Config.addPair(a, point, f(point))
+            CFG.addPair(point, CFG.LL(point))
             
         # we use algorithm 2.1 from Rasmussen & Williams book
-        cfg.Config.setType(a, type.RASMUSSEN_WILLIAMS)
+        CFG.setType( type.RASMUSSEN_WILLIAMS )
         
         # keep the container in scope so we can use it later
-        self.config = a
+        self.CFG = CFG
         
     def tearDown(self):
         '''
@@ -87,18 +89,17 @@ class Test(unittest.TestCase):
     def testMovie1D(self):
         
         # the true log-likelihood function
-        f = truth.trueLL 
+        f = self.CFG.LL 
         
         # the size of the box outside of which the probability is zero
-        M = self.config.M 
+        M = self.CFG.M 
         
         # the bounds on the plot axes
+        # CHANGE THESE IF STUFF HAPPEN OUTSIDE THE FRAME
         xMin = -M
         xMax = M
-        yMax = np.max( np.abs(f( np.arange(xMin,xMax, 1.0)))) 
-        yMax = math.sqrt( yMax )
-        #yMax = 2.0
-        yMin = -yMax
+        yMax = 100
+        yMin = -300
         
         # all the x values for which we plot
         x = np.arange(xMin, xMax, 0.05)
@@ -107,7 +108,8 @@ class Test(unittest.TestCase):
         delay = 8
         
         # The number of evaluations of the true likelihood
-        nf    = 9       
+        # CHANGE THIS IF YOU WANT A 
+        nf    = 60       
         
         # allocate memory for the arrays to be plotted
         kriged = np.zeros( x.shape )
@@ -119,11 +121,11 @@ class Test(unittest.TestCase):
         for frame in range (nf+1):
             
             # the current a value of the kriged interpolant "at infinity"
-            limAtInfty = self.config.getLimitSVD()
+            limAtInfty = self.CFG.getLimitSVD()
             
             # create the kriged curve and the limit curve
             for j in range(0,len(x)):
-                kriged[j] = kg.kriging(x[j] ,self.config)[0]
+                kriged[j] = kg.kriging(x[j] ,self.CFG)[0]
                 limit[j] = limAtInfty
                 true[j] = f(x[j]) # the real log likelihood
             
@@ -136,7 +138,7 @@ class Test(unittest.TestCase):
 #                 print x.shape
 #                 print true.shape
                 curve2 =  plt.plot(x, true, label = "true log-likelihood")
-                curve3 =  plt.plot( self.config.X, self.config.F, 'bo', label = "sampled points ")
+                curve3 =  plt.plot( self.CFG.X, self.CFG.F, 'bo', label = "sampled points ")
                 curve4  = plt.plot(x, limit, 'g', label = "kriged value at infinity")
         
                 plt.setp( curve1, 'linewidth', 3.0, 'color', 'k', 'alpha', .5 )
@@ -144,7 +146,7 @@ class Test(unittest.TestCase):
         
                 
                 plt.axis([xMin, xMax, yMin, yMax])
-                PlotTitle = 'Kriged Log-Likelihood Changes in Time. r = ' + str(self.config.r) + " Algorithm: " + self.config.algType.getDescription()
+                PlotTitle = 'Kriged Log-Likelihood Changes in Time. r = ' + str(self.CFG.r) + " Algorithm: " + self.CFG.algType.getDescription()
                 plt.title( PlotTitle )
                 textString = 'using  ' + str(frame ) + ' sampled points' 
                 plt.text(1.0, 1.0, textString)
@@ -156,7 +158,7 @@ class Test(unittest.TestCase):
                     print( "saved file " + FrameFileName + ".  " + str(frame*delay + k) +  " / " + str(nf*delay) )
                     
             # IMPORTANT - we sample from the kriged log-likelihood. this is crucial!!!!
-            smp.sampler(self.config)
+            smp.sampler(self.CFG)
         
 
 

@@ -6,13 +6,13 @@ Feel free to write to me about my code!
 '''
 import unittest
 import kernel.sampler as smp
-import matplotlib.pyplot as plt
 import numpy as np
 import kernel.config as cfg
 import kernel.type as type
 import kernel.kriging as kg
 import kernel.truth as truth
 import pylab as P
+import matplotlib.pyplot as plt
 
 
 
