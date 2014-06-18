@@ -52,7 +52,7 @@ class Test(unittest.TestCase):
         CFG.setR(r) 
             
         # the size of the box outside of which the probability is zero
-        M = 10.0 
+        M = 4.0 
         CFG.setM(M)
 
         # we know the true log-likelihood in these points
@@ -96,7 +96,7 @@ class Test(unittest.TestCase):
         
         # The number of evaluations of the true likelihood
         # CHANGE THIS FOR A LONGER MOVIE!!!
-        nf    = 4      
+        nf    = 60      
         
         # the true log-likelihood function
         # CHANGE THIS IF YOU WANT YOUR OWN LOG-LIKELIHOOD!!!
