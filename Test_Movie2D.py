@@ -52,13 +52,13 @@ class Test(unittest.TestCase):
         CFG.setR(r) 
             
         # the size of the box outside of which the probability is zero
-        M = 5.0 
+        M = 10.0 
         CFG.setM(M)
 
         # we know the true log-likelihood in these points
         StartPoints = []
-        StartPoints.append( np.array( [ 0, 0 ] )  )#-0.5)*(M/2.0) )
-        StartPoints.append( np.array( [0.5, 1.0] )  )#-0.5)*(M/2.0) )
+        StartPoints.append( np.array( [ 0 , 0 ] ) )
+        StartPoints.append( np.array( [0.5,1.0] ) )
         
         # choose the true log likelihood
         CFG.setLL( truth.norm2D )
@@ -67,7 +67,8 @@ class Test(unittest.TestCase):
             CFG.addPair( point, f(point) )
         
         # we use algorithm 2.1 from Rasmussen & Williams book
-        CFG.setType( type.RASMUSSEN_WILLIAMS )
+        CFG.setType( type.RASMUSSEN_WILLIAMS  )
+        #CFG.setType( type.AUGMENTED_COVARIANCE)
         
         # keep the container in scope so we can use it later
         self.CFG = CFG
@@ -95,7 +96,7 @@ class Test(unittest.TestCase):
         
         # The number of evaluations of the true likelihood
         # CHANGE THIS FOR A LONGER MOVIE!!!
-        nf    = 80      
+        nf    = 4      
         
         # the true log-likelihood function
         # CHANGE THIS IF YOU WANT YOUR OWN LOG-LIKELIHOOD!!!
@@ -149,7 +150,7 @@ class Test(unittest.TestCase):
                 xs = np.ravel( np.transpose( np.array( self.CFG.X ) )[0] )
                 ys = np.ravel( np.transpose( np.array( self.CFG.X ) )[1] )
                 zs = np.ravel( np.transpose( np.array( self.CFG.F ) )    )
-                ax.scatter(xs, ys, zs, c=c, marker=m)
+                ax.scatter(xs, ys, zs)
 
                 PlotTitle = 'Kriged LL surface. ' + str(frame) + ' samples. r = ' + str(self.CFG.r) + " Algorithm: " + self.CFG.algType.getDescription()
                 plt.title( PlotTitle )
@@ -163,19 +164,7 @@ class Test(unittest.TestCase):
                     print( "saved file " + FrameFileName + ".  " + str(frame*delay + k) +  " / " + str((nf+1)*delay) )
                       
             # IMPORTANT - we sample from the kriged log-likelihood. this is crucial!!!!
-            smp.sampler(self.CFG)
-
-
-def randrange(n, vmin, vmax):
-    return (vmax-vmin)*np.random.rand(n) + vmin
-
-
-n = 100
-for c, m, zl, zh in [('r', 'o', -50, -25), ('b', '^', -30, -5)]:
-    xs = randrange(n, 23, 32)
-    ys = randrange(n, 0, 100)
-    zs = randrange(n, zl, zh)
-    
+            smp.sampler(self.CFG)    
 
 plt.show()
 if __name__ == "__main__":

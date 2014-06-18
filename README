@@ -21,7 +21,7 @@ newSample = kernel.sampler.sampler( container object )
 
 
 important variables (whose value is stored in a container object):
--------------------------------------------------------------
+-----------------------------------------------------------------
 r - a characteristic length scale, determines the autocovariance of the (presumably) underlying gaussian process.
 See 'kernel.aux' module. 
 Set it using a container's 'setR' method.

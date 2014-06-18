@@ -63,7 +63,7 @@ class Config:
         starting with two is just as fine
         '''
         
-        # the first points are at the edges...
+        # the first points are close to the edges...
         x = np.ones(n)*2*self.M/3
         self.addPair(x, self.LL(x))
         self.addPair(-x, self.LL(-x) )
@@ -78,7 +78,7 @@ class Config:
         # we need to recalculate the matrices, so the matrices aren't tready
         self.matricesReady = False
         
-    def setR( self,t):
+    def setR(self,t):
         '''
         set the hyper parameter r and the regularization
         we used in the kriging procedure
@@ -88,7 +88,7 @@ class Config:
         self.r = t
         
         # the regularization we use in the tychonoff solver
-        self.reg = 100*math.sqrt(self.r)*np.finfo(np.float).eps
+        self.reg = 100*self.r*np.finfo(np.float).eps
         
         # parameters changed, so we need to recalculate the matrices
         self.matricesReady = False
