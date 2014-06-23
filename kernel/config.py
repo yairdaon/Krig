@@ -18,6 +18,8 @@ class Config:
     the data needed to do kriging, resample etc. An instance of 
     this class is passed to the sampler, the kriging procedure
     etc.
+    This module does not do heavy computations, that is left for the 
+    kriging module. Here we store data and run specifications.
     '''
         
     def __init__(self):
@@ -54,6 +56,9 @@ class Config:
         
         # point to the true log-likelihood that we'll use
         self.LL = truth.trueLL
+        
+        # are the limiting kriged value and variance ready? no!
+        self.limitsReady = False
 
     def quickSetup(self, n):
         '''
@@ -78,6 +83,9 @@ class Config:
         # we need to recalculate the matrices, so the matrices aren't tready
         self.matricesReady = False
         
+        # the limits need to be recalculated also
+        self.limitsReady = False
+        
     def setR(self,t):
         '''
         set the hyper parameter r and the regularization
@@ -92,6 +100,7 @@ class Config:
         
         # parameters changed, so we need to recalculate the matrices
         self.matricesReady = False
+        self.limitsReady = False
     
     def setLL(self, likelihood):
         '''
@@ -110,24 +119,27 @@ class Config:
         we use this procedure when we add a sampled "ground truth" point 
         once the matrices are ready we set matricesReady = True
         '''
-        if self.matricesReady == False:
-            if self.algType == type.AUGMENTED_COVARIANCE:
-                self.acm = aux.augCovMat(self.X,self.r)    # acm  = augmented covariance matrix
-                self.U, self.S, self.V = np.linalg.svd(self.acm, full_matrices = True, compute_uv = True)
+    
+        if self.algType == type.AUGMENTED_COVARIANCE:
+            self.acm = aux.augCovMat(self.X,self.r)    # acm  = augmented covariance matrix
+            self.U, self.S, self.V = np.linalg.svd(self.acm, full_matrices = True, compute_uv = True)
+                                                           
+        elif self.algType == type.COVARIANCE:
+            self.cm = aux.covMat(self.X,self.r)    # cm  = covariance matrix
+            self.U, self.S, self.V = np.linalg.svd(self.cm, full_matrices = True, compute_uv = True)
         
-            elif self.algType == type.COVARIANCE:
-                self.cm = aux.covMat(self.X,self.r)    # cm  = covariance matrix
-                self.U, self.S, self.V = np.linalg.svd(self.cm, full_matrices = True, compute_uv = True)
-            
-            elif self.algType == type.RASMUSSEN_WILLIAMS:
-                self.cm = aux.covMat(self.X,self.r)    # cm  = covariance matrix
-                self.U, self.S, self.V = np.linalg.svd(self.cm, full_matrices = True, compute_uv = True)
-            else: 
-                print("Your algorithm type is not valid. Algorithm type set to default.")
-                self.algType = type.AUGMENTED_COVARIANCE
-                self.acm = aux.augCovMat(self.X,self.r)    # acm  = augmented covariance matrix
-                self.U, self.S, self.V = np.linalg.svd(self.acm, full_matrices = True, compute_uv = True)
-            self.matricesReady = True    
+        elif self.algType == type.RASMUSSEN_WILLIAMS:
+            self.cm = aux.covMat(self.X,self.r)    # cm  = covariance matrix
+            self.U, self.S, self.V = np.linalg.svd(self.cm, full_matrices = True, compute_uv = True)
+        else: 
+            print("Your algorithm type is not valid. Algorithm type set to default.")
+            self.algType = type.AUGMENTED_COVARIANCE
+            self.acm = aux.augCovMat(self.X,self.r)    # acm  = augmented covariance matrix
+            self.U, self.S, self.V = np.linalg.svd(self.acm, full_matrices = True, compute_uv = True)
+        
+        # tell everybody the matrices are ready
+        self.matricesReady = True       
+        
                 
         
     def setAddSamplesToDataSet(self, addOrNot):
@@ -150,6 +162,7 @@ class Config:
         if self.algType != algType:
             self.algType = algType
             self.matricesReady = False
+            self.limitsReady = False
         
     def setM(self, M):
         ''' 
@@ -172,39 +185,4 @@ class Config:
         s = np.linalg.svd( self.cm )[1]
         self.cmCond = max(s)/min(s)
         
-     
-    def getLimitSVD(self):
-        '''
-        returns the kriged value "at infinity"
-        very similar to the  corresponding kriging procedure
-        '''
-        
-        # if we solve for the augmented covariance matrix
-        if self.algType == type.AUGMENTED_COVARIANCE:
-            
-            # make sure the matrices are ready
-            self.setMatrices()
-            
-            # unpack
-            F = self.F
-            S = self.S
-            n = len(F)
-            
-            # set target
-            c = np.zeros( n+1 )
-            c[n] =  1.0
-            lam = aux.tychonoffSvdSolver(self.U, self.S, self.V, c, self.reg)
-            lim = np.zeros( len(F[0]) )
-            for i in range(n):
-                lim = lim + lam[i] * F[i]    
-            return lim
-            
-        # if we use algorithm 2.1 (page 19) from Rasmussen & Williams' book
-        # title "Gaussian Processes for Machine Learning"    
-        if self.algType == type.RASMUSSEN_WILLIAMS:
-            return 0
-        
-            
-        
     
-        

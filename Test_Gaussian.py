@@ -59,7 +59,7 @@ class Test(unittest.TestCase):
 
         # take and incorporate to data an initial sample:        
         self.CFG.setAddSamplesToDataSet( True ) #... tell the container it does so...
-        k= 20 # ...decide how many initial points we take to resolve the log-likelihood
+        k = 45 # ...decide how many initial points we take to resolve the log-likelihood
         for j in range(0,k): 
             print( "Initial samples " + str(j+1) + " of " + str(k))
             smp.sampler(self.CFG) # ... sample, incorporate into data set, repeat k times.
@@ -73,7 +73,7 @@ class Test(unittest.TestCase):
         '''
         
         # take 1000 samples. We DO NOT incorporate these into the data set
-        n = 8000
+        n = 2000
         
         # allocate memory for the data
         samples = np.zeros(n)
@@ -90,10 +90,11 @@ class Test(unittest.TestCase):
         # do all the plotting business, copied from pylab's examples
         P.figure()
         # the histogram of the data with histtype='step'
-        nn, bins, patches = P.hist(samples, 50, normed=1, histtype='stepfilled')
+        nn, bins, patches = P.hist(samples, 20, normed=1, histtype='stepfilled')
         P.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
         P.title(str(n) + " samples from the kriged (posterior) log-likelihood interpolating a Gaussian")
-        P.show()
+        P.savefig("Posterior Histogram: Test_Gaussian")
+        P.close()
         
     def tearDown(self):
         '''
@@ -124,7 +125,8 @@ class Test(unittest.TestCase):
         
         plt.legend(loc=1,prop={'size':7})    
         plt.title("Kriging with bounds using " + self.CFG.algType.getDescription() )
-        plt.show()
+        plt.savefig("Kriged LL: Test_Gaussian")
+        plt.close()
 
 
 

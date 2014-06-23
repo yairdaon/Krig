@@ -30,7 +30,7 @@ movie2:
 	clear
 	$(PYTHON) Test_Movie2D.py
 	
-tests:
+short:
 	clear
 	$(PYTHON) Test_Sampler.py
 	$(PYTHON) Test_Solver.py
@@ -39,8 +39,19 @@ tests:
 	$(PYTHON) Test_Reproducible.py
 	$(PYTHON) Test_Plots.py
 
-long:
+overnight:
 	clear
+	$(PYTHON) Test_Movie1D.py
+	$(PYTHON) Test_Movie2D.py
+	$(PYTHON) Test_Gaussian.py
+	
+tests:
+	$(PYTHON) Test_Sampler.py
+	$(PYTHON) Test_Solver.py
+	$(PYTHON) Test_Simple.py
+	$(PYTHON) Test_Uniform.py
+	$(PYTHON) Test_Reproducible.py
+	$(PYTHON) Test_Plots.py
 	$(PYTHON) Test_Movie1D.py
 	$(PYTHON) Test_Movie2D.py
 	$(PYTHON) Test_Gaussian.py

@@ -39,24 +39,24 @@ class Test(unittest.TestCase):
         X.append(x4)
 
         # create the container object and populate it...
-        a = cfg.Config()
+        CFG = cfg.Config()
         for v in X: 
-            a.addPair(v, truth.trueLL(v)) #... with (point, value) pair...
+            CFG.addPair(v, truth.trueLL(v)) #... with (point, value) pair...
         #a.setType(type.RASMUSSEN_WILLIAMS) #... with the algorithm we use...
         #a.setType(type.AUGMENTED_COVARIANCE)
         #a.setType(type.COVARIANCE)
         r = 1.3
-        a.setR(r) # ...with the location scale hyper parameter r...
-        a.setMatrices() # ... and with the matrices the kriging procedure uses
+        CFG.setR(r) # ...with the location scale hyper parameter r...
+        CFG.setMatrices() # ... and with the matrices the kriging procedure uses
         
         # the value of the kriged function "at infinity"
-        limAtInfty = a.getLimitSVD()
+        limAtInfty, tmp = kg.setGetLimit(CFG)
 
         # calculate the curves for the given input
         for j in range(0,n):    
             
             # do kriging, get avg value and std dev
-            v = kg.kriging(x[j] ,a) 
+            v = kg.kriging(x[j] ,CFG) 
             f[j] = v[0] # set the interpolant
             upper[j] = v[0] + 1.96*v[1] # set the upper bound
             lower[j] = v[0] - 1.96*v[1] # set lower bound
@@ -67,7 +67,7 @@ class Test(unittest.TestCase):
         curve2  = plt.plot(x, upper, label = "1.96 standard deviations")
         curve3  = plt.plot(x, lower)
         curve4  = plt.plot(x, limit, label = "kriged value at infinity")
-        curve5 =  plt.plot( a.X, a.F, 'bo', label = "sampled points ")
+        curve5 =  plt.plot( CFG.X, CFG.F, 'bo', label = "sampled points ")
         
         plt.setp( curve1, 'linewidth', 3.0, 'color', 'k', 'alpha', .5 )
         plt.setp( curve2, 'linewidth', 1.5, 'color', 'r', 'alpha', .5 )
@@ -75,8 +75,9 @@ class Test(unittest.TestCase):
         plt.setp( curve4, 'linewidth', 1.5, 'color', 'b', 'alpha', .5 )
         
         plt.legend(loc=1,prop={'size':7})    
-        plt.title("Kriging with bounds using " + a.algType.getDescription() )
-        plt.show()
+        plt.title("Kriging with bounds using " + CFG.algType.getDescription() )
+        plt.savefig("Kriged LL: Test_Plots")
+        plt.close()
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testPlots']

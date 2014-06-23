@@ -18,8 +18,10 @@ def kriging(s, CFG):
     here this is interpreted as a log-likelihood \ log-probability
     '''
     
+    
     # make sure the matrices used in the kriging computation are ready    
-    CFG.setMatrices()
+    if not CFG.matricesReady:
+        CFG.setMatrices()
     
     # choose among the different algorithms
     if CFG.algType == type.AUGMENTED_COVARIANCE:
@@ -183,8 +185,63 @@ def rwKriging(s, CFG):
     for i in range(n):
         f = f + alpha[i] * k[i]
         
+    # solve using our tychonoff solver
     tmp = aux.tychonoffSvdSolver(CFG.U, CFG.S, CFG.V, k, reg)
+    
     sigmaSquare =  aux.cov(0,0,r) - np.sum(k*tmp)
     if sigmaSquare  < 0 and -sigmaSquare > 10*reg:
         print(" negative variance ")
-    return f, sigmaSquare   
+    return f, sigmaSquare  
+
+
+ 
+def setGetLimit(CFG):
+    '''
+    Returns the kriged value "at infinity", along with
+    the (prior) variance at infinity. Very similar to the 
+    above kriging procedures.
+    '''
+    
+    if not CFG.limitsReady:
+        
+        # if we solve for the augmented covariance matrix
+        if CFG.algType == type.AUGMENTED_COVARIANCE:
+            
+            # prepare for the following calculations
+            if not CFG.matricesReady:
+                CFG.setMatrices()
+            
+            # unpack
+            F = CFG.F
+            S = CFG.S
+            n = len(F)
+            
+            # set target
+            c = np.zeros( n+1 )
+            c[n] =  1.0
+            
+            # solve for the coefficients just like in kriging
+            lam = aux.tychonoffSvdSolver(CFG.U, CFG.S, CFG.V, c, CFG.reg)
+            
+            # calculate the function value according to these weights
+            lim = np.zeros( len(F[0]) )
+            for i in range(n):
+                lim = lim + lam[i] * F[i] 
+            
+            CFG.varAtInf = aux.cov(0,0,CFG.r) + lam[n]
+            CFG.lim = lim
+            
+        
+        # if we use algorithm 2.1 (page 19) from Rasmussen & Williams' book
+        # title "Gaussian Processes for Machine Learning" or just solve for the
+        # not augmented covariance matrix   
+        if CFG.algType == type.RASMUSSEN_WILLIAMS or CFG.algType == type.COVARIANCE:
+            
+            # the variance at infinity
+            CFG.varAtInf = aux.cov(0,0,CFG.r)
+            CFG.lim = 0.0
+        
+        # we've set the limits, so they're ready
+        CFG.limitsReady = True
+        
+    return CFG.lim , CFG.varAtInf

@@ -53,7 +53,7 @@ def sampler(CFG):
     input:    
     CFG is a container object that holds all required data. see the config.py module
     '''
-    
+    #print("sampler...")
     # unpack the data in CFG
     X = CFG.X
     M = CFG.M
@@ -62,27 +62,45 @@ def sampler(CFG):
     ndim = len(X[0])
     
     # set number of walkers
-    nwalkers =  2*ndim + 4
+    nwalkers =  10*ndim
     
     # set burn in time
     burn = 150*ndim**(1.5)
 
     
     # the initial set of positions are uniform  in the box [-M,M]^ndim
-    p0 = np.random.rand(ndim * nwalkers) #choose U[0,1]
-    p0 = ( 2*p0  - 1.0 )*M # shift and stretch
-    p0 = p0.reshape((nwalkers, ndim)) # reshape
+    pos = np.random.rand(ndim * nwalkers) #choose U[0,1]
+    pos = ( 2*pos  - 1.0 )*M # shift and stretch
+    pos = pos.reshape((nwalkers, ndim)) # reshape
     
     # Initialize the sampler with the chosen specs.
     sam = mc.EnsembleSampler(nwalkers, ndim, lnprob, args=[ CFG ])
     
-    # Run some steps as a burn-in. use last as a sample
-    pos, prob, state = sam.run_mcmc(p0, burn, rstate0 = CFG.state)
-    CFG.state = np.random.get_state()
-    
-    # record the position of first walker
-    s = pos[0,:]
-    
+    counter = 0;
+    keepLooping = True
+    while ( keepLooping ):
+        
+        #allow at most ten loops
+        counter = counter + 1
+        if counter > 5: break
+        
+        # Run some steps as a burn-in. use last as a sample
+        pos, prob, state = sam.run_mcmc(pos, burn, rstate0 = CFG.state)
+        CFG.state = np.random.get_state()
+        
+        for n in range(nwalkers):
+            
+            # record the position of first walker
+            s = pos[n,:]
+            value, variance = kg.kriging(s, CFG)
+            valueAtInf , varianceAtInf = kg.setGetLimit(CFG)
+            
+            # somewhat arbitrary, but good enough for now
+            if variance/varianceAtInf > 0.5:
+                #print "used it!!! " + str(n)
+                keepLooping = False
+                break
+        
     # append to the list of exact log likelihoods if instructed to do so
     if CFG.addSamplesToDataSet == True:
         

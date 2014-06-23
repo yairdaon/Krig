@@ -37,7 +37,7 @@ class Test(unittest.TestCase):
         # tell the OS to prepare for the movie and the frames
         os.system("mkdir MovieFrames1")
         os.system("rm -f MovieFrames1/*.png")     
-        os.system("rm -f Movie1.mpg")    
+        
         
         #     Initializations of the container object
         CFG = cfg.Config()
@@ -67,7 +67,9 @@ class Test(unittest.TestCase):
             CFG.addPair(point, CFG.LL(point))
             
         # we use algorithm 2.1 from Rasmussen & Williams book
-        CFG.setType( type.RASMUSSEN_WILLIAMS )
+        #CFG.setType( type.RASMUSSEN_WILLIAMS )
+        #CFG.setType(type.AUGMENTED_COVARIANCE )
+        CFG.setType( type.COVARIANCE )
         
         # keep the container in scope so we can use it later
         self.CFG = CFG
@@ -81,9 +83,9 @@ class Test(unittest.TestCase):
         feel free to change these two lines here according to whatever
         programs you have installed in your system
         '''
-         
-        os.system("ffmpeg -i MovieFrames1/Frame%d.png Movie1.mpg") 
-        os.system("vlc Movie1.mpg")     
+        os.system("rm -f Movie1D.mpg")     
+        os.system("ffmpeg -i MovieFrames1/Frame%d.png Movie1D.mpg") 
+        #os.system("vlc Movie1.mpg")     
 
 
     def testMovie1D(self):
@@ -109,7 +111,7 @@ class Test(unittest.TestCase):
         
         # The number of evaluations of the true likelihood
         # CHANGE THIS IF YOU WANT A 
-        nf    = 60       
+        nf    = 100       
         
         # allocate memory for the arrays to be plotted
         kriged = np.zeros( x.shape )
@@ -121,7 +123,8 @@ class Test(unittest.TestCase):
         for frame in range (nf+1):
             
             # the current a value of the kriged interpolant "at infinity"
-            limAtInfty = self.CFG.getLimitSVD()
+            
+            limAtInfty , tmp= kg.setGetLimit(self.CFG)
             
             # create the kriged curve and the limit curve
             for j in range(0,len(x)):

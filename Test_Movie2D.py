@@ -38,7 +38,7 @@ class Test(unittest.TestCase):
         # tell the OS to prepare for the movie and the frames
         os.system("mkdir MovieFrames2")
         os.system("rm -f MovieFrames2/*.png")     
-        os.system("rm -f Movie2.mpg")    
+        
         
         #     Initializations of the container object
         
@@ -48,11 +48,11 @@ class Test(unittest.TestCase):
         CFG.state = np.random.get_state()
         
         # The length scale parameter in the Gaussian process covariance function.
-        r = 1.3
+        r = 10
         CFG.setR(r) 
             
         # the size of the box outside of which the probability is zero
-        M = 4.0 
+        M = 15.0 
         CFG.setM(M)
 
         # we know the true log-likelihood in these points
@@ -82,9 +82,15 @@ class Test(unittest.TestCase):
         feel free to change these two lines here according to whatever
         programs you have installed in your system
         '''
-         
-        os.system("ffmpeg -i MovieFrames2/Frame%d.png Movie2.mpg") 
-        os.system("vlc Movie2.mpg")     
+        
+        # delete previous movie
+        os.system("rm -f Movie2D.mpg")    
+        
+        # create new movie 
+        os.system("ffmpeg -i MovieFrames2/Frame%d.png Movie2D.mpg") 
+        
+        #play new movie
+        #os.system("vlc Movie2.mpg")     
 
 
     def testMovie2D(self):
@@ -96,7 +102,7 @@ class Test(unittest.TestCase):
         
         # The number of evaluations of the true likelihood
         # CHANGE THIS FOR A LONGER MOVIE!!!
-        nf    = 60      
+        nf    = 120     
         
         # the true log-likelihood function
         # CHANGE THIS IF YOU WANT YOUR OWN LOG-LIKELIHOOD!!!
@@ -109,8 +115,8 @@ class Test(unittest.TestCase):
         # CHANGE THIS IF STUFF HAPPEN OUTSIDE THE MOVIE FRAME
         xMin = -M
         xMax = M
-        yMax = 2.0
-        yMin = -40.0
+        zMax = 10.0
+        zMin = -150.0
         
         # create the two meshgrids the plotter needs
         a  = np.arange(xMin, xMax, 0.1)
@@ -145,7 +151,7 @@ class Test(unittest.TestCase):
                 ax.plot_wireframe(X, Y, kriged, rstride=10, cstride=10)
                 ax.set_xlim(xMin, xMax)
                 ax.set_ylim(xMin, xMax)
-                ax.set_zlim(yMin, yMax)
+                ax.set_zlim(zMin, zMax)
                 
                 xs = np.ravel( np.transpose( np.array( self.CFG.X ) )[0] )
                 ys = np.ravel( np.transpose( np.array( self.CFG.X ) )[1] )
@@ -154,7 +160,7 @@ class Test(unittest.TestCase):
 
                 PlotTitle = 'Kriged LL surface. ' + str(frame) + ' samples. r = ' + str(self.CFG.r) + " Algorithm: " + self.CFG.algType.getDescription()
                 plt.title( PlotTitle )
-                textString = 'using  ' + str(frame ) + ' sampled points' 
+                #textString = 'using  ' + str(frame ) + ' sampled points' 
                 #plt.text( textString)
                 plt.legend(loc=1,prop={'size':7})    
                 FrameFileName = "MovieFrames2/Frame" + str(frame*delay + k) + ".png"
