@@ -76,8 +76,8 @@ class Test(unittest.TestCase):
             CFG.addPair( point, f(point) )
         
         # we use algorithm 2.1 from Rasmussen & Williams book
-        CFG.setType( type.RASMUSSEN_WILLIAMS  )
-        #CFG.setType( type.AUGMENTED_COVARIANCE)
+        #CFG.setType( type.RASMUSSEN_WILLIAMS  )
+        CFG.setType( type.AUGMENTED_COVARIANCE)
         
         # keep the container in scope so we can use it later
         self.CFG = CFG
@@ -112,7 +112,7 @@ class Test(unittest.TestCase):
         
         # The number of evaluations of the true likelihood
         # CHANGE THIS FOR A LONGER MOVIE!!!
-        nf    =  120    
+        nf    =  22   
         
         # the true log-likelihood function
         # CHANGE THIS IF YOU WANT YOUR OWN LOG-LIKELIHOOD!!!
@@ -129,8 +129,8 @@ class Test(unittest.TestCase):
         zMin = -500.0
         
         # create the two meshgrids the plotter needs
-        a  = np.arange(xMin, xMax, 2)#0.4)
-        b  = np.arange(xMin, xMax, 2)#0.4)
+        a  = np.arange(xMin, xMax, 0.4)
+        b  = np.arange(xMin, xMax, 0.4)
         X, Y = np.meshgrid(a, b)
         
         # we create each frame many times, so the movie is slower and easier to watch
