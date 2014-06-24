@@ -112,7 +112,7 @@ class Test(unittest.TestCase):
         
         # The number of evaluations of the true likelihood
         # CHANGE THIS FOR A LONGER MOVIE!!!
-        nf    =  22   
+        nf    =  140   
         
         # the true log-likelihood function
         # CHANGE THIS IF YOU WANT YOUR OWN LOG-LIKELIHOOD!!!
