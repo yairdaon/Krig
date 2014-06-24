@@ -6,16 +6,20 @@ Feel free to write to me about my code!
 '''
 
 import unittest
+import numpy as np
+import math
+import os
+
 import kernel.kriging as kg
 import kernel.sampler as smp
 import kernel.truth as truth
-import numpy as np
-import matplotlib.pyplot as plt
 import kernel.config as cfg
-import math
-import os
 import kernel.type as type
+
 from mpl_toolkits.mplot3d import axes3d
+import matplotlib.pyplot as plt
+from matplotlib import cm
+
 
 
 class Test(unittest.TestCase):
@@ -36,8 +40,13 @@ class Test(unittest.TestCase):
         np.random.seed(1792) 
         
         # tell the OS to prepare for the movie and the frames
-        os.system("mkdir MovieFrames2")
-        os.system("rm -f MovieFrames2/*.png")     
+        os.system("mkdir Movie2DSurfaceFrames")
+        os.system("mkdir Movie2DContourFrames")
+
+        os.system("mkdir graphics")
+        os.system("rm -f Movie2DSurfaceFrames/*.png") 
+        os.system("rm -f Movie2DContourFrames/*.png")     
+    
         
         
         #     Initializations of the container object
@@ -84,11 +93,12 @@ class Test(unittest.TestCase):
         '''
         
         # delete previous movie
-        os.system("rm -f Movie2D.mpg")    
+        os.system("rm -f graphics/Movie2DSurface.mpg")   
+        os.system("rm -f graphics/Movie2DContour.mpg")     
         
         # create new movie 
-        os.system("ffmpeg -i MovieFrames2/Frame%d.png Movie2D.mpg") 
-        
+        os.system("ffmpeg -i Movie2DSurfaceFrames/Frame%d.png graphics/Movie2DSurface.mpg") 
+        os.system("ffmpeg -i Movie2DContourFrames/Frame%d.png graphics/Movie2DContour.mpg") 
         #play new movie
         #os.system("vlc Movie2.mpg")     
 
@@ -102,7 +112,7 @@ class Test(unittest.TestCase):
         
         # The number of evaluations of the true likelihood
         # CHANGE THIS FOR A LONGER MOVIE!!!
-        nf    = 120     
+        nf    =  120    
         
         # the true log-likelihood function
         # CHANGE THIS IF YOU WANT YOUR OWN LOG-LIKELIHOOD!!!
@@ -115,16 +125,16 @@ class Test(unittest.TestCase):
         # CHANGE THIS IF STUFF HAPPEN OUTSIDE THE MOVIE FRAME
         xMin = -M
         xMax = M
-        zMax = 10.0
-        zMin = -150.0
+        zMax = 50.0
+        zMin = -500.0
         
         # create the two meshgrids the plotter needs
-        a  = np.arange(xMin, xMax, 0.1)
-        b  = np.arange(xMin, xMax, 0.1)
+        a  = np.arange(xMin, xMax, 2)#0.4)
+        b  = np.arange(xMin, xMax, 2)#0.4)
         X, Y = np.meshgrid(a, b)
         
         # we create each frame many times, so the movie is slower and easier to watch
-        delay = 5
+        delay = 4
         
         # allocate memory for the arrays to be plotted
         kriged = np.zeros( X.shape )
@@ -142,35 +152,56 @@ class Test(unittest.TestCase):
                     p[1] = Y[j,i]    
                     kriged[j,i] = kg.kriging( p ,self.CFG )[0]
                                 
-            # each frame is saved delay times, so we can watch the movie at reasonable speed    
-            for k in range(delay):
-                
-                fig = plt.figure( frame*delay + k )
-                ax = fig.add_subplot(111, projection='3d')
-                
-                ax.plot_wireframe(X, Y, kriged, rstride=10, cstride=10)
-                ax.set_xlim(xMin, xMax)
-                ax.set_ylim(xMin, xMax)
-                ax.set_zlim(zMin, zMax)
-                
-                xs = np.ravel( np.transpose( np.array( self.CFG.X ) )[0] )
-                ys = np.ravel( np.transpose( np.array( self.CFG.X ) )[1] )
-                zs = np.ravel( np.transpose( np.array( self.CFG.F ) )    )
-                ax.scatter(xs, ys, zs)
+            # create surface plot
+            fig1 = plt.figure( frame*2 )
+           
+            ax1 = fig1.add_subplot(111 , projection='3d')
+            
+            ax1.plot_wireframe(X, Y, kriged, rstride=10, cstride=10)
+            ax1.set_xlim(xMin, xMax)
+            ax1.set_ylim(xMin, xMax)
+            ax1.set_zlim(zMin, zMax)
+            
+            xs = np.ravel( np.transpose( np.array( self.CFG.X ) )[0] )
+            ys = np.ravel( np.transpose( np.array( self.CFG.X ) )[1] )
+            zs = np.ravel( np.transpose( np.array( self.CFG.F ) )    )
+            ax1.scatter(xs, ys, zs)
+    
+            PlotTitle1 = 'Kriged LL surface. ' + str(frame) + ' samples. r = ' + str(self.CFG.r) + " Algorithm: " + self.CFG.algType.getDescription()
+            plt.title( PlotTitle1 )
+            #textString = 'using  ' + str(frame ) + ' sampled points' 
+            #plt.text( textString)
+            plt.legend(loc=1,prop={'size':7}) 
+            
+            
+            # create contour
+            fig2 = plt.figure( frame*2 + 1 )
+            ax2 = fig2.add_subplot(111) #, projection='2d')
+            cs = ax2.contour(X, Y, kriged, levels = range(zMin , zMax , 50)  ) 
+            ax2.clabel(cs, fmt = '%.0f', inline = True) 
+            ax2.scatter(xs, ys)
+            PlotTitle2 = 'Kriged LL contours. ' + str(frame) + ' samples. r = ' + str(self.CFG.r) + " Algorithm: " + self.CFG.algType.getDescription()
+            plt.title( PlotTitle2 )
+            # save the plot several times
+            for k in range(delay):   
+                FrameFileName1 = "Movie2DSurfaceFrames/Frame" + str(frame*delay + k) + ".png"
+                FrameFileName2 = "Movie2DContourFrames/Frame" + str(frame*delay + k) + ".png"
 
-                PlotTitle = 'Kriged LL surface. ' + str(frame) + ' samples. r = ' + str(self.CFG.r) + " Algorithm: " + self.CFG.algType.getDescription()
-                plt.title( PlotTitle )
-                #textString = 'using  ' + str(frame ) + ' sampled points' 
-                #plt.text( textString)
-                plt.legend(loc=1,prop={'size':7})    
-                FrameFileName = "MovieFrames2/Frame" + str(frame*delay + k) + ".png"
-                plt.savefig(FrameFileName)
-                plt.close(frame*delay + k)
+                fig1.savefig(FrameFileName1)
+                fig2.savefig(FrameFileName2)
+
                 if (frame*delay + k) % 10 == 0:
-                    print( "saved file " + FrameFileName + ".  " + str(frame*delay + k) +  " / " + str((nf+1)*delay) )
-                      
+                    print( "saved " + FrameFileName1 + " and " +FrameFileName2 + ".  " + str(frame*delay + k) +  " / " + str((nf+1)*delay) )
+            
+            plt.close( frame*2     )
+            plt.close( frame*2 + 1 )
+
             # IMPORTANT - we sample from the kriged log-likelihood. this is crucial!!!!
-            smp.sampler(self.CFG)    
+            smp.sampler(self.CFG) 
+            
+
+
+   
 
 plt.show()
 if __name__ == "__main__":

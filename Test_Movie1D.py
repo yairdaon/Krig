@@ -31,13 +31,13 @@ class Test(unittest.TestCase):
         this is where most of the setup is done for the movie
         '''
         
-        # for reproducibility
-        np.random.seed(1792) 
-        
         # tell the OS to prepare for the movie and the frames
-        os.system("mkdir MovieFrames1")
-        os.system("rm -f MovieFrames1/*.png")     
+        os.system("mkdir Movie1DFrames")
+        os.system("mkdir graphics")
+        os.system("rm -f Movie1DFrames/*.png")    
         
+        # for reproducibility
+        np.random.seed(1792)    
         
         #     Initializations of the container object
         CFG = cfg.Config()
@@ -83,8 +83,12 @@ class Test(unittest.TestCase):
         feel free to change these two lines here according to whatever
         programs you have installed in your system
         '''
-        os.system("rm -f Movie1D.mpg")     
-        os.system("ffmpeg -i MovieFrames1/Frame%d.png Movie1D.mpg") 
+        # delete previous movie
+        os.system("rm -f graphics/Movie1D.mpg")    
+        
+        # create new movie 
+        os.system("ffmpeg -i Movie1DFrames/Frame%d.png graphics/Movie1D.mpg") 
+        
         #os.system("vlc Movie1.mpg")     
 
 
@@ -107,11 +111,11 @@ class Test(unittest.TestCase):
         x = np.arange(xMin, xMax, 0.05)
         
         # we create each frame many times, so the movie is slower and easier to watch
-        delay = 8
+        delay = 5
         
         # The number of evaluations of the true likelihood
         # CHANGE THIS IF YOU WANT A 
-        nf    = 100       
+        nf    = 150       
         
         # allocate memory for the arrays to be plotted
         kriged = np.zeros( x.shape )
@@ -133,33 +137,32 @@ class Test(unittest.TestCase):
                 true[j] = f(x[j]) # the real log likelihood
             
             # each frame is saved delay times, so we can watch the movie at reasonable speed    
-            for k in range(delay):
-                plt.figure( frame*delay + k )
-                
-                # here we create the plot. nothing too fascinating here.
-                curve1  = plt.plot(x, kriged , label = "kriged log-likelihood")
-#                 print x.shape
-#                 print true.shape
-                curve2 =  plt.plot(x, true, label = "true log-likelihood")
-                curve3 =  plt.plot( self.CFG.X, self.CFG.F, 'bo', label = "sampled points ")
-                curve4  = plt.plot(x, limit, 'g', label = "kriged value at infinity")
-        
-                plt.setp( curve1, 'linewidth', 3.0, 'color', 'k', 'alpha', .5 )
-                plt.setp( curve2, 'linewidth', 1.5, 'color', 'r', 'alpha', .5 )
-        
-                
-                plt.axis([xMin, xMax, yMin, yMax])
-                PlotTitle = 'Kriged Log-Likelihood Changes in Time. r = ' + str(self.CFG.r) + " Algorithm: " + self.CFG.algType.getDescription()
-                plt.title( PlotTitle )
-                textString = 'using  ' + str(frame ) + ' sampled points' 
-                plt.text(1.0, 1.0, textString)
-                plt.legend(loc=1,prop={'size':7})    
-                FrameFileName = "MovieFrames1/Frame" + str(frame*delay + k) + ".png"
+            #for k in range(delay):
+            plt.figure( frame*delay )
+            
+            # here we create the plot. nothing too fascinating here.
+            curve1  = plt.plot(x, kriged , label = "kriged log-likelihood")
+            curve2 =  plt.plot(x, true, label = "true log-likelihood")
+            curve3 =  plt.plot( self.CFG.X, self.CFG.F, 'bo', label = "sampled points ")
+            curve4  = plt.plot(x, limit, 'g', label = "kriged value at infinity")
+    
+            plt.setp( curve1, 'linewidth', 3.0, 'color', 'k', 'alpha', .5 )
+            plt.setp( curve2, 'linewidth', 1.5, 'color', 'r', 'alpha', .5 )
+    
+            
+            plt.axis([xMin, xMax, yMin, yMax])
+            PlotTitle = 'Kriged Log-Likelihood Changes in Time. r = ' + str(self.CFG.r) + " Algorithm: " + self.CFG.algType.getDescription()
+            plt.title( PlotTitle )
+            textString = 'using  ' + str(frame ) + ' sampled points' 
+            plt.text(1.0, 1.0, textString)
+            plt.legend(loc=1,prop={'size':7})  
+            
+            for k in range(delay):  
+                FrameFileName = "Movie1DFrames/Frame" + str(frame*delay + k) + ".png"
                 plt.savefig(FrameFileName)
-                plt.close(frame*delay + k)
                 if (frame*delay + k) % 10 == 0:
                     print( "saved file " + FrameFileName + ".  " + str(frame*delay + k) +  " / " + str(nf*delay) )
-                    
+                
             # IMPORTANT - we sample from the kriged log-likelihood. this is crucial!!!!
             smp.sampler(self.CFG)
         

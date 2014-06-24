@@ -76,7 +76,7 @@ class Test(unittest.TestCase):
         
         plt.legend(loc=1,prop={'size':7})    
         plt.title("Kriging with bounds using " + CFG.algType.getDescription() )
-        plt.savefig("Kriged LL: Test_Plots")
+        plt.savefig("graphics/Test_Plots: Kriged LL")
         plt.close()
 
 if __name__ == "__main__":

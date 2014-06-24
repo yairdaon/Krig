@@ -5,12 +5,15 @@ Created on Jun 14, 2014
 Feel free to write to me about my code!
 '''
 import unittest
-import kernel.sampler as smp
+import os
 import numpy as np
+
+import kernel.sampler as smp
 import kernel.config as cfg
 import kernel.type as type
 import kernel.kriging as kg
 import kernel.truth as truth
+
 import pylab as P
 import matplotlib.pyplot as plt
 
@@ -34,7 +37,9 @@ class Test(unittest.TestCase):
         this means putting all required information 
         inside the container object
         '''
-        
+        # create target directory
+        os.system("mkdir graphics")
+
         # set seed for reproducibility
         np.random.seed(89)
         
@@ -73,7 +78,7 @@ class Test(unittest.TestCase):
         '''
         
         # take 1000 samples. We DO NOT incorporate these into the data set
-        n = 2000
+        n =  2000
         
         # allocate memory for the data
         samples = np.zeros(n)
@@ -93,7 +98,7 @@ class Test(unittest.TestCase):
         nn, bins, patches = P.hist(samples, 20, normed=1, histtype='stepfilled')
         P.setp(patches, 'facecolor', 'g', 'alpha', 0.75)
         P.title(str(n) + " samples from the kriged (posterior) log-likelihood interpolating a Gaussian")
-        P.savefig("Posterior Histogram: Test_Gaussian")
+        P.savefig("graphics/Test_Gaussian: Posterior Histogram")
         P.close()
         
     def tearDown(self):
@@ -125,7 +130,7 @@ class Test(unittest.TestCase):
         
         plt.legend(loc=1,prop={'size':7})    
         plt.title("Kriging with bounds using " + self.CFG.algType.getDescription() )
-        plt.savefig("Kriged LL: Test_Gaussian")
+        plt.savefig("graphics/Test_Gaussian: kriged LL")
         plt.close()
 
 
