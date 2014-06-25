@@ -17,8 +17,7 @@ TEST_SOURCES     = Test_*.py
 
 FOR_ALL   = Makefile 
 
-ALL_SOURCES = $(KERNEL_SOURCES) $(TEST_SOURCES) Makefile MovieFrames
-MOVIE_SOURCES = $(KERNEL_SOURCES) Makefile Test_Movie1D.py Test_Movie2D.py
+ALL_SOURCES = $(KERNEL_SOURCES) $(TEST_SOURCES) Makefile README
 
 #               Makin Movies!
 
@@ -57,3 +56,11 @@ tests:
 	$(PYTHON) Test_Movie1D.py
 	$(PYTHON) Test_Movie2D.py
 	$(PYTHON) Test_Gaussian.py
+
+
+#	Makin tarball
+
+tarball: $(All_SOURCES)  
+	tar -cvf Krig.tar $(ALL_SOURCES) 
+
+
