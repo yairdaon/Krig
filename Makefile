@@ -46,27 +46,14 @@ overnight:
 	$(PYTHON) Test_Gaussian.py
 	
 tests:
+	clear
 	$(PYTHON) Test_Sampler.py
 	$(PYTHON) Test_Solver.py
 	$(PYTHON) Test_Simple.py
 	$(PYTHON) Test_Uniform.py
 	$(PYTHON) Test_Reproducible.py
+	mkdir -p graphics
 	$(PYTHON) Test_Plots.py
 	$(PYTHON) Test_Movie1D.py
 	$(PYTHON) Test_Movie2D.py
 	$(PYTHON) Test_Gaussian.py
-
-#	Makin tarball
-
-tarball: $(All_SOURCES)  
-	rm -f MovieFrames/*.png        #  delete any ex$(FFMPEG) -i MovieFrames/Frame%d.png Movie.mpg
-	$(PLAY) Movie.mpgisting frames
-	rm -f Movie.mpg                #  delete the existing movie, if there is one
-	tar -cvf KrigingSampler.tar $(ALL_SOURCES) 
-
-kernelball: $(KERNEL_SOURCES)
-	tar -cvf kernel.tar $(KERNEL_SOURCES)
-	 
-movieball: $(MOVIE_SOURCES)
-	rm -f MovieFrames/*.png        #  delete any existing frames
-	tar -cvf MovieMaker.tar $(MOVIE_SOURCES) 

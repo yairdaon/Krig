@@ -138,7 +138,7 @@ class Test(unittest.TestCase):
             
             # each frame is saved delay times, so we can watch the movie at reasonable speed    
             #for k in range(delay):
-            plt.figure( frame*delay )
+            fig = plt.figure( frame*delay )
             
             # here we create the plot. nothing too fascinating here.
             curve1  = plt.plot(x, kriged , label = "kriged log-likelihood")
@@ -162,7 +162,9 @@ class Test(unittest.TestCase):
                 plt.savefig(FrameFileName)
                 if (frame*delay + k) % 10 == 0:
                     print( "saved file " + FrameFileName + ".  " + str(frame*delay + k) +  " / " + str(nf*delay) )
-                
+                    
+            plt.close( frame*delay ) 
+  
             # IMPORTANT - we sample from the kriged log-likelihood. this is crucial!!!!
             smp.sampler(self.CFG)
         
