@@ -109,7 +109,9 @@ class Test(unittest.TestCase):
         ax1.setp( curve5, 'linewidth', 3.0, 'color', 'k', 'alpha', .5 )
         ax1.setp( curve6, 'linewidth', 1.5, 'color', 'r', 'alpha', .5 )
         ax1.setp( curve8, 'linewidth', 1.5, 'color', 'b', 'alpha', .5 )
+        
         # save
+        os.system("mkdir graphics")
         fig.savefig("graphics/Test_Density: Kriged LL and resulting density")
         
         

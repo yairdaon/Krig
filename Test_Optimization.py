@@ -34,7 +34,7 @@ class Test(unittest.TestCase):
         
         # for reproducibility
         np.random.seed(1792) 
-
+        
         os.system("mkdir graphics")     
                
         #     Initializations of the container object

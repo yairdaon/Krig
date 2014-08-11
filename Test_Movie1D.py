@@ -33,9 +33,10 @@ class Test(unittest.TestCase):
         '''
         
         # tell the OS to prepare for the movie and the frames
-        os.system("mkdir Movie1DFrames")
+        os.system("mkdir Data")     
+        os.system("mkdir Data/Movie1DFrames")
         os.system("mkdir graphics")
-        os.system("rm -f Movie1DFrames/*.png")    
+        os.system("rm -f Data/Movie1DFrames/*.png")    
         
         # for reproducibility
         np.random.seed(1792)    
@@ -89,7 +90,7 @@ class Test(unittest.TestCase):
         os.system("rm -f graphics/Movie1D.mpg")    
         
         # create new movie 
-        os.system("ffmpeg -i Movie1DFrames/Frame%d.png graphics/Movie1D.mpg") 
+        os.system("ffmpeg -i Data/Movie1DFrames/Frame%d.png graphics/Movie1D.mpg") 
         
         #os.system("vlc Movie1.mpg")     
 
@@ -160,7 +161,7 @@ class Test(unittest.TestCase):
             plt.legend(loc=1,prop={'size':7})  
             
             for k in range(delay):  
-                FrameFileName = "Movie1DFrames/Frame" + str(frame*delay + k) + ".png"
+                FrameFileName = "Data/Movie1DFrames/Frame" + str(frame*delay + k) + ".png"
                 plt.savefig(FrameFileName)
                 if (frame*delay + k) % 10 == 0:
                     print( "saved file " + FrameFileName + ".  " + str(frame*delay + k) +  " / " + str(nf*delay) )

@@ -40,12 +40,13 @@ class Test(unittest.TestCase):
         np.random.seed(1792) 
         
         # tell the OS to prepare for the movie and the frames
-        os.system("mkdir Movie2DSurfaceFrames")
-        os.system("mkdir Movie2DContourFrames")
+        os.system("mkdir Data")     
+        os.system("mkdir Data/Movie2DSurfaceFrames")
+        os.system("mkdir Data/Movie2DContourFrames")
 
         os.system("mkdir graphics")
-        os.system("rm -f Movie2DSurfaceFrames/*.png") 
-        os.system("rm -f Movie2DContourFrames/*.png")     
+        os.system("rm -f Data/Movie2DSurfaceFrames/*.png") 
+        os.system("rm -f Data/Movie2DContourFrames/*.png")     
     
         
         
@@ -98,8 +99,8 @@ class Test(unittest.TestCase):
         os.system("rm -f graphics/Movie2DContour.mpg")     
         
         # create new movie 
-        os.system("ffmpeg -i Movie2DSurfaceFrames/Frame%d.png graphics/Movie2DSurface.mpg") 
-        os.system("ffmpeg -i Movie2DContourFrames/Frame%d.png graphics/Movie2DContour.mpg") 
+        os.system("ffmpeg -i Data/Movie2DSurfaceFrames/Frame%d.png graphics/Movie2DSurface.mpg") 
+        os.system("ffmpeg -i Data/Movie2DContourFrames/Frame%d.png graphics/Movie2DContour.mpg") 
         
         #play new movie
         #os.system("vlc Movie2.mpg")     
@@ -179,8 +180,8 @@ class Test(unittest.TestCase):
             plt.title( PlotTitle2 )
             # save the plot several times
             for k in range(delay):   
-                FrameFileName1 = "Movie2DSurfaceFrames/Frame" + str(frame*delay + k) + ".png"
-                FrameFileName2 = "Movie2DContourFrames/Frame" + str(frame*delay + k) + ".png"
+                FrameFileName1 = "Data/Movie2DSurfaceFrames/Frame" + str(frame*delay + k) + ".png"
+                FrameFileName2 = "Data/Movie2DContourFrames/Frame" + str(frame*delay + k) + ".png"
 
                 fig1.savefig(FrameFileName1)
                 fig2.savefig(FrameFileName2)

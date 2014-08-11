@@ -8,6 +8,7 @@ Feel free to write to me about my code!
 import unittest
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 import kernel.kriging as kg
 import kernel.config as cfg
@@ -78,6 +79,7 @@ class Test(unittest.TestCase):
         
         plt.legend(loc=1,prop={'size':7})    
         plt.title("Kriging with bounds using " + CFG.algType.getDescription() )
+        os.system("mkdir graphics")
         plt.savefig("graphics/Test_Plots: Kriged LL")
         plt.close()
 

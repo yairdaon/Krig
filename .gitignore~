@@ -2,4 +2,11 @@
 sandbox.py
 SomeClass.py
 *.mpg
-
+animation.py
+graphics
+Movie*
+Optimi*
+*~
+Test_Density.py
+*.png
+Data
