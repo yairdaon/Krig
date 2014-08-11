@@ -64,10 +64,44 @@ class Test(unittest.TestCase):
 
         # take and incorporate to data an initial sample:        
         self.CFG.setAddSamplesToDataSet( True ) #... tell the container it does so...
-        k = 45 # ...decide how many initial points we take to resolve the log-likelihood
+        
+        # create the sampler
+        self.sampler = smp.Sampler ( self.CFG )
+        
+        k =  45 # ...decide how many initial points we take to resolve the log-likelihood
         for j in range(0,k): 
             print( "Initial samples " + str(j+1) + " of " + str(k))
-            smp.sampler(self.CFG) # ... sample, incorporate into data set, repeat k times.
+            self.sampler.sample() # ... sample, incorporate into data set, repeat k times.
+        
+        
+        # plot kriged LL
+                
+        # allocating memory
+        x = np.arange(-10, 10, 0.05)
+        n = len(x)
+        f = np.zeros( n )
+        
+        # calculate the curves for the given input
+        for j in range(0,n):    
+            
+            # do kriging, get avg value and std dev
+            v = kg.kriging(x[j] ,self.CFG) 
+            f[j] = v[0] # set the interpolant
+            
+        
+        # do all the plotting here
+        curve1  = plt.plot(x, f, label = "kriged value")
+        curve2  = plt.plot( self.CFG.X, self.CFG.F, 'bo', label = "sampled points ")
+        curve3  = plt.plot(x, truth.gaussian1D(x), label = "true log-likelihood")
+        
+        plt.setp( curve1, 'linewidth', 3.0, 'color', 'k', 'alpha', .5 )
+        
+        
+        plt.legend(loc=1,prop={'size':7})    
+        plt.title("Kriging with bounds using " + self.CFG.algType.getDescription() )
+        plt.savefig("graphics/Test_Gaussian: kriged LL")
+        plt.close()
+   
             
         
     
@@ -77,7 +111,7 @@ class Test(unittest.TestCase):
         and plot in histogram
         '''
         
-        # take 1000 samples. We DO NOT incorporate these into the data set
+        # take 2000 samples. We DO NOT incorporate these into the data set
         n =  2000
         
         # allocate memory for the data
@@ -90,7 +124,8 @@ class Test(unittest.TestCase):
         print( "taking " + str(n) +  " samples from the posterior")
         for i in range(n):
             print( "Gaussian test, posterior sample " + str(i+1) + " of " + str(n))
-            samples[i] = smp.sampler(self.CFG)
+            samples[i] = self.sampler.sample() # ... sample, incorporate into data set, repeat k times.
+
         
         # do all the plotting business, copied from pylab's examples
         P.figure()

@@ -32,6 +32,6 @@ class Type(object):
 # here are the instances of the above class. 
 AUGMENTED_COVARIANCE = Type( "Augmented Covariance" ) # Use augmented covariance matrix. Unbiased predictor.
 COVARIANCE           = Type( "Covarince Matrix" ) # Covariance matrix. Not an unbiased predictor.
-RASMUSSEN_WILLIAMS   = Type( " Rasmussen Williams") # algorithm 2.1 in R&W "gaussian Process for Machine Learning"      
+RASMUSSEN_WILLIAMS   = Type( "Rasmussen Williams") # algorithm 2.1 in R&W "gaussian Process for Machine Learning"      
 
   

@@ -6,12 +6,14 @@ Feel free to write to me about my code!
 '''
 
 import unittest
-import kernel.kriging as kg
 import matplotlib.pyplot as plt
 import numpy as np
+
+import kernel.kriging as kg
 import kernel.config as cfg
 import kernel.truth as truth
 import kernel.type as type
+
 class Test(unittest.TestCase):
     
     def testPlots(self):

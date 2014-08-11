@@ -1,7 +1,8 @@
 '''
 Created on Apr 29, 2014
 
-@author: daon
+@author: Yair Daon. email: fisrtname.lsatname@gmail.com
+Feel free to write to me about my code!
 '''
 
 import numpy as np
@@ -26,15 +27,17 @@ def kriging(s, CFG):
     # choose among the different algorithms
     if CFG.algType == type.AUGMENTED_COVARIANCE:
         f, sigSquare =  acmSvdKriging(s, CFG)    
-        return f, math.sqrt( abs(sigSquare) ) 
     
-    if CFG.algType == type.COVARIANCE:
+    elif CFG.algType == type.COVARIANCE:
         f, sigSquare =  cmSvdKriging(s, CFG)    
-        return f, math.sqrt( abs(sigSquare) ) 
     
-    if CFG.algType == type.RASMUSSEN_WILLIAMS:
-        f, sigSquare =  rwKriging(s, CFG)    
-        return f, math.sqrt( abs(sigSquare) ) 
+    elif CFG.algType == type.RASMUSSEN_WILLIAMS:
+        f, sigSquare =  rwKriging(s, CFG)  
+    
+    else:
+        print("Error, invalid algorithm type.")  
+
+    return f + CFG.prior(s), math.sqrt( abs(sigSquare) ) 
  
 def acmSvdKriging(s, CFG):
     '''
@@ -60,7 +63,7 @@ def acmSvdKriging(s, CFG):
     '''
     # unpack the variables
     X = CFG.X
-    F = CFG.F
+    F = CFG.Fmp # F minus prior 
     r = CFG.r
     reg = CFG.reg
         
@@ -116,7 +119,7 @@ def cmSvdKriging(s, CFG):
     '''
     # unpack the variables
     X = CFG.X
-    F = CFG.F
+    F = CFG.Fmp # F minus prior
     U = CFG.U
     S = CFG.S
     V = CFG.V
@@ -158,19 +161,19 @@ def rwKriging(s, CFG):
     Rasmussen and Wiliams. They solve using Cholesky. Here
     we use the SVD with tychonoff regularization instead.
     '''
+    
     # unpack the variables
     X = CFG.X
-    y = np.array( CFG.F )
+    y = np.array( CFG.Fmp ) # F minus prior 
     y = np.ravel(y)
 
     # number of samples we have.
     n = len(X)
     
+    # parameters
     r = CFG.r
     reg = CFG.reg
     
-    
-
     # create the target c:
     k = np.zeros( n )
     for i in range(0,n):
@@ -181,7 +184,7 @@ def rwKriging(s, CFG):
     # solve for lambda 
     alpha = aux.tychonoffSvdSolver(CFG.U, CFG.S, CFG.V, y, reg)
     
-    f = np.zeros( len(CFG.F[0]) )
+    f = np.zeros( len(CFG.Fmp[0]) ) # F minus prior
     for i in range(n):
         f = f + alpha[i] * k[i]
         
@@ -190,7 +193,7 @@ def rwKriging(s, CFG):
     
     sigmaSquare =  aux.cov(0,0,r) - np.sum(k*tmp)
     if sigmaSquare  < 0 and -sigmaSquare > 10*reg:
-        print(" negative variance ")
+        print(" negative variance. s= " + str(s) )
     return f, sigmaSquare  
 
 
@@ -212,7 +215,7 @@ def setGetLimit(CFG):
                 CFG.setMatrices()
             
             # unpack
-            F = CFG.F
+            F = CFG.Fmp # F minus prior
             S = CFG.S
             n = len(F)
             

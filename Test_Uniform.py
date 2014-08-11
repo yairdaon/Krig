@@ -17,8 +17,7 @@ class TestKriging(unittest.TestCase):
     def setUp(self):
         
         r = 1.0
-        M = 1.0
-
+        M = 25.0
         # create locations where values of log 
         # likelihood are known
         X = []
@@ -31,20 +30,23 @@ class TestKriging(unittest.TestCase):
         X.append(x3)
         X.append(x4)
 
-        a = cfg.Config()
-        a.setR(r)
-        a.setM(M)
+        CFG = cfg.Config()
+        
+        # set some parameters
+        CFG.setR(r)
+        CFG.setM(M)
+
 
         # set all these known values to be the same
         for i in range (len(X)):
-            a.addPair(X[i], np.array( [ 1.5  ] ) )
+            CFG.addPair(X[i], np.array( [ 1.5  ] ) )
     
-        a.setMatrices()
-        self.a = a
+        CFG.setMatrices()
+        self.CFG = CFG
         
     def testUniform(self):
         #self.assertTrue(    np.allclose( np.array([1.5]) , kg.kriging(np.array([5.0]),self.a )[0] )      )
-        self.assertTrue(    np.allclose( np.array([1.5]) , kg.kriging(np.array([20.0]),self.a )[0] )      )
+        self.assertTrue(    np.allclose( np.array([1.5]) , kg.kriging(np.array([20.0]),self.CFG )[0] )      )
 
 
 

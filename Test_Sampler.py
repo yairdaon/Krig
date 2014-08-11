@@ -34,19 +34,16 @@ class Test(unittest.TestCase):
         r = 1.0
         
         # create and populate the container object:
-        a = cfg.Config() # call the constructor...
-        a.addPair(np.array ( [ 1.0, 1.0, 1.0 ]), np.array( [2.45])) #...add data...  
-        a.setR(r) # ...set the length scale hyper parameter...
-        a.setM(M) # ...set the box size...
-        a.setMatrices() # ...calcualte the matrices neede for kriging...
-        a.LL = truth.norm2D
-        self.config = a # ... and keep the container in the scope of the test.
+        CFG = cfg.Config() # call the constructor...
+        CFG.addPair(np.array ( [ 1.0, 1.0, 1.0 ]), np.array( [2.45])) #...add data...  
+        CFG.setR(r) # ...set the length scale hyper parameter...
+        CFG.setM(M) # ...set the box size...
+        CFG.setMatrices() # ...calcualte the matrices neede for kriging...
+        CFG.LL = truth.norm2D
+        self.CFG = CFG # ... and keep the container in the scope of the test.
 
-
-    def tearDown(self):
-        pass
-
-
+        self.sampler = smp.Sampler( CFG )
+        
     def testSampler1(self):
         '''
         here we sample from the sampler. We choose to incorporate
@@ -56,17 +53,17 @@ class Test(unittest.TestCase):
         '''
                              
         # choose to add samples to data set
-        self.config.setAddSamplesToDataSet( True )
+        self.CFG.setAddSamplesToDataSet( True )
                                                                                                                                       
        # take three samples
-        smp.sampler(self.config)
-        smp.sampler(self.config)
-        smp.sampler(self.config)
+        self.sampler.sample()
+        self.sampler.sample()
+        self.sampler.sample()
                              
-        self.assertEqual(len( self.config.X ) , 4 )
-        self.assertEqual( len(self.config.X[0]) , len(self.config.X[1]) )             
-        self.assertEqual( len(self.config.X[0]) , len(self.config.X[2]) )   
-        self.assertEqual( len(self.config.X[0]) , len(self.config.X[3]) )             
+        self.assertEqual(len( self.CFG.X ) , 4 )
+        self.assertEqual( len(self.CFG.X[0]) , len(self.CFG.X[1]) )             
+        self.assertEqual( len(self.CFG.X[0]) , len(self.CFG.X[2]) )   
+        self.assertEqual( len(self.CFG.X[0]) , len(self.CFG.X[3]) )             
           
                     
     def testSampler2(self):
@@ -76,19 +73,19 @@ class Test(unittest.TestCase):
         '''
         
         # choose to add samples to data set
-        self.config.setAddSamplesToDataSet( False )
+        self.CFG.setAddSamplesToDataSet( False )
         
         # take four samples
-        smp.sampler(self.config)
-        smp.sampler(self.config)
-        smp.sampler(self.config)
-        smp.sampler(self.config)
+        self.sampler.sample()
+        self.sampler.sample()
+        self.sampler.sample()
+        self.sampler.sample()
         
         # take another one and incorporate it
-        self.config.setAddSamplesToDataSet( True )
-        smp.sampler(self.config)
+        self.CFG.setAddSamplesToDataSet( True )
+        self.sampler.sample()
         
-        self.assertEqual(len( self.config.X ) , 2)
+        self.assertEqual(len( self.CFG.X ) , 2)
         
         
 if __name__ == "__main__":

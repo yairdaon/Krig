@@ -1,21 +1,29 @@
 '''
 Created on Apr 29, 2014
 
-@author: daon
+@author: Yair Daon. email: fisrtname.lsatname@gmail.com
+Feel free to write to me about my code!
 '''
 import numpy as np
 import math
+import point
 
 def cov(x,y,r):
     '''
-    calculate an autocovariance
+    calculate autocovariance
     '''
     
-    temp = np.linalg.norm(x-y)
-    cov =  math.exp(  -temp*temp/(2*r*r)  ) 
+    if np.all(x==y):
+        if isinstance(x , point.PointWithError):
+            return x.getError() + 1.0
+        else:
+            return 1.0
+    else: 
+        temp = np.linalg.norm(x-y)
+        return  math.exp(  -temp*temp/(2*r*r)  ) 
 
     # if we consider noisy observations
-    if np.all(x==y): cov + 0.5
+    
     
     return cov
 
@@ -47,7 +55,7 @@ def augCovMat(X,r):
 
 def covMat(X,r): 
     '''
-    create return the covariance matrix for the observations
+    create and return the covariance matrix for the observations
     '''
     
     #decide on the size of
@@ -77,3 +85,9 @@ def tychonoffSvdSolver( U, S, V, b, reg):
     x = np.dot( np.transpose(V) ,  np.transpose(y) )  # x = V^t * y
     
     return x
+
+def infNorm(s):
+    if hasattr(s, "__len__"):
+        return np.linalg.norm( np.asarray(s) , np.inf)
+    else:
+        return abs(s) 

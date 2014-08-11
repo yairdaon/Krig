@@ -53,38 +53,39 @@ class Test(unittest.TestCase):
         
         CFG = cfg.Config()
         
-        # make it remember the state of the PRNG
-        CFG.state = np.random.get_state()
-        
         # The length scale parameter in the Gaussian process covariance function.
         r = 10
         CFG.setR(r) 
             
         # the size of the box outside of which the probability is zero
-        M = 15.0 
-        CFG.setM(M)
+        self.M = 15
+        CFG.setM(self.M)
 
         # we know the true log-likelihood in these points
         StartPoints = []
         StartPoints.append( np.array( [ 0 , 0 ] ) )
         StartPoints.append( np.array( [0.5,1.0] ) )
         
-        # choose the true log likelihood
+        # the true log-likelihood function
+        # CHANGE THIS IF YOU WANT YOUR OWN LOG-LIKELIHOOD!!!        
         CFG.setLL( truth.norm2D )
-        f = CFG.LL # the true log-likelihood function 
+        self.f = CFG.LL # the true log-likelihood function 
+        
         for point in StartPoints:
-            CFG.addPair( point, f(point) )
+            CFG.addPair( point, CFG.LL(point) )
         
         # we use algorithm 2.1 from Rasmussen & Williams book
         #CFG.setType( type.RASMUSSEN_WILLIAMS  )
         CFG.setType( type.AUGMENTED_COVARIANCE)
         
         # keep the container in scope so we can use it later
+        self.sampler = smp.Sampler( CFG )
         self.CFG = CFG
+
         
     def tearDown(self):
         '''
-        after the test was run - we create and show the movie.
+        after the test was run - we create the movie.
         you need two programs installed on your machine to make this work:
         you need ffmpeg to create the movie from the frames python saves 
         and you need vlc to watch the movie
@@ -99,6 +100,7 @@ class Test(unittest.TestCase):
         # create new movie 
         os.system("ffmpeg -i Movie2DSurfaceFrames/Frame%d.png graphics/Movie2DSurface.mpg") 
         os.system("ffmpeg -i Movie2DContourFrames/Frame%d.png graphics/Movie2DContour.mpg") 
+        
         #play new movie
         #os.system("vlc Movie2.mpg")     
 
@@ -112,21 +114,14 @@ class Test(unittest.TestCase):
         
         # The number of evaluations of the true likelihood
         # CHANGE THIS FOR A LONGER MOVIE!!!
-        nf    =  140   
-        
-        # the true log-likelihood function
-        # CHANGE THIS IF YOU WANT YOUR OWN LOG-LIKELIHOOD!!!
-        f = self.CFG.LL 
-        
-        # the size of the box outside of which the probability is zero
-        M = self.CFG.M 
+        nf    =  125   
         
         # the bounds on the plot axes
         # CHANGE THIS IF STUFF HAPPEN OUTSIDE THE MOVIE FRAME
-        xMin = -M
-        xMax = M
-        zMax = 50.0
-        zMin = -500.0
+        xMin = -self.M
+        xMax = self.M
+        zMax = 50
+        zMin = -500
         
         # create the two meshgrids the plotter needs
         a  = np.arange(xMin, xMax, 0.4)
@@ -177,7 +172,7 @@ class Test(unittest.TestCase):
             # create contour
             fig2 = plt.figure( frame*2 + 1 )
             ax2 = fig2.add_subplot(111) #, projection='2d')
-            cs = ax2.contour(X, Y, kriged, levels = range(zMin , zMax , 50)  ) 
+            cs = ax2.contour(X, Y, kriged, levels = np.arange(zMin , zMax , 25)  ) 
             ax2.clabel(cs, fmt = '%.0f', inline = True) 
             ax2.scatter(xs, ys)
             PlotTitle2 = 'Kriged LL contours. ' + str(frame) + ' samples. r = ' + str(self.CFG.r) + " Algorithm: " + self.CFG.algType.getDescription()
@@ -197,7 +192,7 @@ class Test(unittest.TestCase):
             plt.close( frame*2 + 1 )
 
             # IMPORTANT - we sample from the kriged log-likelihood. this is crucial!!!!
-            smp.sampler(self.CFG) 
+            self.sampler.sample() 
             
 
 

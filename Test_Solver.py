@@ -40,10 +40,6 @@ class Test(unittest.TestCase):
         self.reg = 100*np.finfo(np.float).eps
         
 
-    def tearDown(self):
-        pass
-
-
     def testTychonoff(self):
         
         # solve using our solver

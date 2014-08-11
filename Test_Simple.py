@@ -1,8 +1,10 @@
 '''
 Created on Apr 29, 2014
 
-@author: daon
+@author: Yair Daon. email: fisrtname.lsatname@gmail.com
+Feel free to write to me about my code!
 '''
+
 import unittest
 
 import kernel.kriging as kg
@@ -32,22 +34,22 @@ class Test(unittest.TestCase):
         f4 = np.array( [-2] )
 
         # create the container object ...
-        a = cfg.Config()
+        CFG = cfg.Config()
         
         # ...add the points to it ...
-        cfg.Config.addPair(a, x1, f1)
-        cfg.Config.addPair(a, x2, f2)
-        cfg.Config.addPair(a, x3, f3)
-        cfg.Config.addPair(a, x4, f4)
+        CFG.addPair(x1, f1)
+        CFG.addPair(x2, f2)
+        CFG.addPair(x3, f3)
+        CFG.addPair(x4, f4)
         
         # ...set the characteristic distance....
-        cfg.Config.setR(a, 1.0)
+        CFG.setR(1.0)
         
         # ...and create the matrices used for kriging
-        cfg.Config.setMatrices(a)
+        CFG.setMatrices()
         
         # keep the container in the right scope of the whole test
-        self.a = a
+        self.CFG = CFG
         
     def testSimple(self):
         
@@ -55,7 +57,7 @@ class Test(unittest.TestCase):
         s = np.array( [0, 0] )
         
         # kriging for this center ...
-        b , c = kg.kriging(s, self.a)
+        b , c = kg.kriging(s, self.CFG)
         
         # ... should be the average of the values (f1,...,f4) at the points
         self.assertTrue(np.allclose( np.array( [0] ) , b ))

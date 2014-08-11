@@ -32,17 +32,19 @@ class Test(unittest.TestCase):
         StartPoints.append( np.array( [  1.5 ] ) )
 
         # creating the container object...
-        a = cfg.Config()
+        CFG = cfg.Config()
         for point in StartPoints:
-            cfg.Config.addPair(a, point, f(point)) # ...populating it with (point,value) pairs...
-        cfg.Config.setR(a, r) # ...setting the hyper parametr r...
-        cfg.Config.setM(a, M) # ...setting the box size M...
-        cfg.Config.setMatrices(a) #... set the matrices we use for kriging...
-        smp.sampler(a) # ... and sample two points using the given seed
-        smp.sampler(a) # note: the sampler adds these points to the container a on its own
+            CFG.addPair( point, f(point)) # ...populating it with (point,value) pairs...
+        CFG.setR(r) # ...setting the hyper parametr r...
+        CFG.setM(M) # ...setting the box size M...
+        CFG.setMatrices() #... set the matrices we use for kriging...
         
-        # after all of this - this is what the sampler samples
-        self.x = smp.sampler(a)
+        sampler = smp.Sampler(CFG)
+        sampler.sample() # ... and sample two points using the given seed
+        sampler.sample() # note: the sampler adds these points to the container a on its own
+        
+        # now we sample
+        self.x = sampler.sample()
         
     def tearDown(self):
         pass
@@ -65,17 +67,19 @@ class Test(unittest.TestCase):
         StartPoints.append( np.array( [  1.5 ] ) )
 
         #     Initializations of the algorithm
-        a = cfg.Config()
+        CFG = cfg.Config()
         for point in StartPoints:
-            cfg.Config.addPair(a, point, f(point))
-        cfg.Config.setR(a, r)
-        cfg.Config.setM(a, M)
-        cfg.Config.setMatrices(a)
-        smp.sampler(a)
-        smp.sampler(a)
+            CFG.addPair(point, f(point))
+        CFG.setR(r)
+        CFG.setM(M)
+        CFG.setMatrices()
+        
+        sampler = smp.Sampler(CFG)
+        sampler.sample()
+        sampler.sample()
         
         # now we put the sample in y
-        self.y = smp.sampler(a)   
+        self.y = sampler.sample()   
         
         # and compare
         self.assertEqual(self.x, self.y)  
@@ -99,17 +103,19 @@ class Test(unittest.TestCase):
             StartPoints.append( np.array( [  1.5 ] ) )
     
             #     Initializations of the algorithm
-            a = cfg.Config()
+            CFG = cfg.Config()
             for point in StartPoints:
-                cfg.Config.addPair(a, point, f(point))
-            cfg.Config.setR(a, r)
-            cfg.Config.setM(a, M)
-            cfg.Config.setMatrices(a)
-            smp.sampler(a)
-            smp.sampler(a)
+                CFG.addPair(point, f(point))
+            CFG.setR(r)
+            CFG.setM(M)
+            CFG.setMatrices()
+            
+            sampler = smp.Sampler(CFG)
+            sampler.sample()
+            sampler.sample()
             
             # now we put the sample in y
-            self.y = smp.sampler(a)   
+            self.y = sampler.sample()   
             
             # and compare. they should be different!
             self.assertTrue( not np.array_equal(self.x, self.y) )        

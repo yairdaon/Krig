@@ -3,7 +3,7 @@ SUFFIXES :=
 
 #        Compilers, linkers, compile options, link options, paths 
 
-PYTHON  = python2.6
+PYTHON  = python2
 FFMPEG  = ffmpeg           
 PLAY    = vlc
 
@@ -56,7 +56,8 @@ tests:
 	$(PYTHON) Test_Movie1D.py
 	$(PYTHON) Test_Movie2D.py
 	$(PYTHON) Test_Gaussian.py
-
+	$(PYTHON) Test_Optimization.py
+	$(PYTHON) Test_Noise.py
 
 #	Makin tarball
 

@@ -6,10 +6,11 @@ Feel free to write to me about my code!
 
 these methods return what we believe is the true log-likelihood.
 you tell the container object about the function you want to use using the
-
+LL variable of the container.
     
 '''
 import numpy as np
+
 
 def trueLL(s):
     '''
@@ -51,4 +52,11 @@ def norm2D(s):
     '''
     t = np.linalg.norm(s)
     return -np.array( [t*t] )
+
+def rosenbrock2D(s):
+    '''
+    the (negative of the) 2D Rosenbrock function. google it if you've never
+    heard of it.
+    '''
+    return -np.array(     [ (1 - s[0])**2 + 100*(s[1] - s[0]**2)**2  ]  )
     

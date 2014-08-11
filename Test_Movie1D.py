@@ -5,14 +5,15 @@ Created on Jun 15, 2014
 Feel free to write to me about my code!
 '''
 import unittest
+import numpy as np
+import matplotlib.pyplot as plt
+import math
+import os
+
 import kernel.kriging as kg
 import kernel.sampler as smp
 import kernel.truth as truth
-import numpy as np
-import matplotlib.pyplot as plt
 import kernel.config as cfg
-import math
-import os
 import kernel.type as type
 
 
@@ -73,7 +74,8 @@ class Test(unittest.TestCase):
         
         # keep the container in scope so we can use it later
         self.CFG = CFG
-        
+        self.sampler = smp.Sampler( self.CFG 
+                                    )
     def tearDown(self):
         '''
         after the test was run, create and show the movie.
@@ -166,7 +168,7 @@ class Test(unittest.TestCase):
             plt.close( frame*delay ) 
   
             # IMPORTANT - we sample from the kriged log-likelihood. this is crucial!!!!
-            smp.sampler(self.CFG)
+            self.sampler.sample()
         
 
 
