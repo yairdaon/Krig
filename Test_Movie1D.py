@@ -118,7 +118,7 @@ class Test(unittest.TestCase):
         
         # The number of evaluations of the true likelihood
         # CHANGE THIS IF YOU WANT A 
-        nf    = 150       
+        nf    = 12       
         
         # allocate memory for the arrays to be plotted
         kriged = np.zeros( x.shape )

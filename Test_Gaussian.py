@@ -123,7 +123,8 @@ class Test(unittest.TestCase):
         # sample n points from the kriged posterior log likelihood
         print( "taking " + str(n) +  " samples from the posterior")
         for i in range(n):
-            print( "Gaussian test, posterior sample " + str(i+1) + " of " + str(n))
+            if (i % 50 == 0):
+                print( "Gaussian test, posterior sample " + str(i+1) + " of " + str(n))
             samples[i] = self.sampler.sample() # ... sample, incorporate into data set, repeat k times.
 
         

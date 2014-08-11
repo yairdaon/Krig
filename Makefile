@@ -37,12 +37,8 @@ short:
 	$(PYTHON) Test_Uniform.py
 	$(PYTHON) Test_Reproducible.py
 	$(PYTHON) Test_Plots.py
-
-overnight:
-	clear
-	$(PYTHON) Test_Movie1D.py
-	$(PYTHON) Test_Movie2D.py
-	$(PYTHON) Test_Gaussian.py
+	$(PYTHON) Test_Noise.py
+	
 	
 tests:
 	clear
@@ -53,11 +49,10 @@ tests:
 	$(PYTHON) Test_Reproducible.py
 	mkdir -p graphics
 	$(PYTHON) Test_Plots.py
+	$(PYTHON) Test_Noise.py	
 	$(PYTHON) Test_Movie1D.py
 	$(PYTHON) Test_Movie2D.py
 	$(PYTHON) Test_Gaussian.py
-	$(PYTHON) Test_Optimization.py
-	$(PYTHON) Test_Noise.py
 
 #	Makin tarball
 

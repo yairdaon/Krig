@@ -7,6 +7,13 @@ Test_Density.py
 # temp files\ compliled 
 *~
 *.pyc
+README~
+Makefile~
+.gitignore~
+#.project
+#.pydevproject
+
+
 
 # Graphic stuff
 Data/
@@ -18,3 +25,6 @@ Optimi*
 graphics/
 *.png
 *.mpg
+
+
+
