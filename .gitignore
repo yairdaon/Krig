@@ -26,5 +26,6 @@ graphics/
 *.png
 *.mpg
 
-
+# A script that deletes history from git
+script
 
