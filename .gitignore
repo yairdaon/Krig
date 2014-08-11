@@ -1,12 +1,20 @@
-*.pyc
 sandbox.py
 SomeClass.py
-*.mpg
 animation.py
-graphics*
+Test_Density.py
+
+
+# temp files\ compliled 
+*~
+*.pyc
+
+# Graphic stuff
+Data/
+Movie2DSurfaceFrames/
+Movie2DContourFrames/
+Movie1DFrames
 Movie*
 Optimi*
-*~
-Test_Density.py
+graphics/
 *.png
-Data*
+*.mpg
